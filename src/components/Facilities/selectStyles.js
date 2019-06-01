@@ -9,7 +9,6 @@ export const customStyles = {
   }),
   control: (provided) => ({
     ...provided,
-    // border: '1px solid grey',
     borderRadius: '5',
     minHeight: '10px',
     height: '48px',

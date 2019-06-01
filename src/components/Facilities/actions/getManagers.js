@@ -1,5 +1,6 @@
 import action_types from './actionTypes';
 import axiosInstance from '../../../helpers/axios-instance';
+import { url } from '../../../helpers/urls';
 export function getManagersSuccess(managers) {
   return (dispatch) => {
     dispatch({
@@ -11,7 +12,7 @@ export function getManagersSuccess(managers) {
 const getManagers = () => {
   return (dispatch) => {
     return axiosInstance
-      .get('http://192.168.10.104:8080/client/apis/ManagersList')
+      .get(url + '/client/apis/ManagersList')
       .then((response) => dispatch(getManagersSuccess(response.data.data)));
   };
 };

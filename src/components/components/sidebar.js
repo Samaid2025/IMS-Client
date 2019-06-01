@@ -1,11 +1,12 @@
 import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { withRouter } from 'react-router';
 
 class Sidebar extends React.Component {
   render() {
     const { pathname } = this.props.location;
     console.log('current path', pathname);
+    const role = window.localStorage.getItem('role');
     return (
       <React.Fragment>
         <div class="dashboard-sidebar">
@@ -25,7 +26,9 @@ class Sidebar extends React.Component {
                   <ul>
                     <li
                       className={
-                        pathname === '/dashboard' || pathname === '/'
+                        pathname === '/dashboard' ||
+                        pathname === '/' ||
+                        pathname.includes('/inventory/')
                           ? 'active'
                           : ''
                       }
@@ -35,21 +38,27 @@ class Sidebar extends React.Component {
                         Dashboard
                       </NavLink>
                     </li>
-                    <li className={pathname === '/addFacility' ? 'active' : ''}>
+                    <li
+                      className={
+                        pathname === '/addFacility' ||
+                        pathname === '/FacilityList'
+                          ? 'active'
+                          : ''
+                      }
+                      hidden={role !== 'ROLE_USER' ? false : true}
+                    >
                       <a>
                         <i class="icon-material-outline-assignment" />{' '}
                         Facilities List
                       </a>
                       <ul>
                         <li>
-                          <a
-                            name="facilityActive"
-                            href=""
-                            id="view-facility"
-                            onClick={this.handleItemClick}
+                          <NavLink
+                            to={`/FacilityList`}
+                            activeClassName="active"
                           >
-                            View Facilities{' '}
-                          </a>
+                            View Facility
+                          </NavLink>
                         </li>
                         <li>
                           {/* <a id="add-facility" onClick={this.handleItemClick}>
@@ -61,7 +70,7 @@ class Sidebar extends React.Component {
                         </li>
                       </ul>
                     </li>
-                    <li>
+                    {/* <li>
                       <a href="">
                         <i class="icon-line-awesome-users" /> User List
                       </a>
@@ -73,23 +82,25 @@ class Sidebar extends React.Component {
                           <a href="add-user.html">Add Users</a>
                         </li>
                       </ul>
-                    </li>
-                    <li>
-                      <a href="add-inventory.html">
+                    </li> */}
+                    <li
+                      className={pathname === '/addInventory' ? 'active' : ''}
+                    >
+                      <NavLink to={`/addInventory`}>
                         <i class="icon-feather-file-plus" /> Add Inventory
-                      </a>
+                      </NavLink>
                     </li>
-                    <li>
+                    {/* <li>
                       <a href="report.html">
                         <i class="icon-line-awesome-file-text" /> Reports
                       </a>
-                    </li>
-                    <li>
+                    </li> */}
+                    {/* <li>
                       <a href="resport-list.html">
                         <i class="icon-material-outline-file-copy" /> Manage
                         Automatic Reports
                       </a>
-                    </li>
+                    </li> */}
                   </ul>
                 </div>
               </div>

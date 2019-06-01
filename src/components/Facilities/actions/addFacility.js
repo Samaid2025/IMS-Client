@@ -1,5 +1,6 @@
 import action_types from './actionTypes';
 import axiosInstance from '../../../helpers/axios-instance';
+import { url } from '../../../helpers/urls';
 export function addFacilitySuccess(facilities) {
   return (dispatch) => {
     dispatch({
@@ -11,7 +12,7 @@ export function addFacilitySuccess(facilities) {
 const postFacility = (payload) => {
   return (dispatch) => {
     return axiosInstance
-      .post('http://192.168.10.104:8080/client/apis/AddFacility', payload)
+      .post(url + '/client/apis/AddFacility', payload)
       .then((response) => dispatch(addFacilitySuccess(response.data)));
   };
 };

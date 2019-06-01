@@ -40,7 +40,7 @@ class Header extends React.Component {
               <div class="left-side">
                 <div id="logo">
                   <a href="dashboard.html">
-                    <img src="images/logo.png" alt="" />
+                    <img src="/images/logo.png" alt="" />
                   </a>
                 </div>
               </div>
@@ -51,7 +51,7 @@ class Header extends React.Component {
                     <div class="header-notifications-trigger">
                       <a href="#">
                         <div class="user-avatar status-online">
-                          <img src="images/user-avatar-small-01.jpg" alt="" />
+                          <img src="/images/user-avatar-small-01.jpg" alt="" />
                         </div>
                       </a>
                     </div>
@@ -60,7 +60,10 @@ class Header extends React.Component {
                       <div class="user-status">
                         <div class="user-details">
                           <div class="user-avatar status-online">
-                            <img src="images/user-avatar-small-01.jpg" alt="" />
+                            <img
+                              src="/images/user-avatar-small-01.jpg"
+                              alt=""
+                            />
                           </div>
                           <div class="user-name">
                             {this.state.name} <span>{this.state.role}</span>

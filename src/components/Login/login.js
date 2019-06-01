@@ -39,6 +39,12 @@ class Login extends React.Component {
     });
   };
 
+  handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      this.handleLoginCLick();
+    }
+  };
+
   validateLoginData = () => {
     let isValid = true;
     let { login_credentials } = this.state;
@@ -105,7 +111,11 @@ class Login extends React.Component {
                   <h3>Log In</h3>
                 </div>
 
-                <form method="post" id="login-form">
+                <form
+                  method="post"
+                  id="login-form"
+                  onKeyDown={this.handleKeyPress}
+                >
                   <CustomInput
                     type="text"
                     value={this.state.login_credentials.username}

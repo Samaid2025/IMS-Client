@@ -35,18 +35,31 @@ class AddFacility extends React.Component {
   }
 
   componentDidMount = () => {
+    let token = window.localStorage.getItem('token');
+    if (token === null) {
+      console.log(this.props.history);
+      this.props.history.push('/login');
+    }
+    let role = window.localStorage.getItem('role');
+    if (role === 'ROLE_USER') {
+      this.props.history.push('/dashboard');
+    }
     let user_id = window.localStorage.getItem('user_id');
     this.props.getFacilities(user_id).then(() => {
       let opts = [];
-      this.props.facilities.forEach((element) => {
-        opts.push({
-          label: element.facility_name,
-          value: element.id,
+
+      if (this.props.facilities !== undefined) {
+        this.props.facilities.forEach((element) => {
+          opts.push({
+            label: element.facility_name,
+            value: element.id,
+          });
         });
-      });
-      this.setState({
-        facilityOptions: opts,
-      });
+
+        this.setState({
+          facilityOptions: opts,
+        });
+      }
     });
 
     this.props.getManagers().then(() => {
@@ -93,11 +106,7 @@ class AddFacility extends React.Component {
     let isValid = true;
     const { facility } = this.state;
     for (let key in facility) {
-      if (
-        facility[key] === '' ||
-        facility[key] === null ||
-        facility[key].length === 0
-      ) {
+      if (facility[key] === '' || facility[key] === null) {
         facility[key + 'Error'] = true;
         this.setState({
           facility: facility,
@@ -229,7 +238,7 @@ class AddFacility extends React.Component {
                             type="password"
                             value={this.state.facility.password}
                             id="password"
-                            placeholder="Phone"
+                            placeholder="Password"
                             onChange={this.handleChange}
                             hasIcon={false}
                             iconClass="icon-line-awesome-user"
@@ -259,7 +268,7 @@ class AddFacility extends React.Component {
                       <div class="col-xl-4">
                         <div class="submit-field">
                           <h5>Linked Facilities</h5>
-                          <div>
+                          <div style={{ width: '100px' }}>
                             <Select
                               value={this.state.facility.linkedFacilities}
                               options={this.state.facilityOptions}

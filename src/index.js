@@ -15,8 +15,11 @@ ReactDOM.render(
   <Provider store={configureReduxStore()}>
     <Router history={hist}>
       <Switch>
+        {/* <Route path="/" component={Login} /> */}
         <Route path="/login" component={Login} />
-        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/" component={Dashboard} />
+
+        {/* <Route path="/" component={Login} /> */}
 
         {/* <Redirect from="/" to="/login" /> */}
       </Switch>

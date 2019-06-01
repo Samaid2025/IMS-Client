@@ -3,6 +3,8 @@ const initialState = {
   facilities: [],
   manager: [],
   postedFacility: null,
+  facilitiesList: [],
+  totalFacilities: 0,
 };
 
 export default function FacilitiesReducer(state = initialState, action) {
@@ -21,6 +23,22 @@ export default function FacilitiesReducer(state = initialState, action) {
       return {
         ...state,
         postedFacility: action.payload,
+      };
+    case action_types['GET-ALL-FACILITIES-LIST']:
+      return {
+        ...state,
+        facilitiesList: action.payload.data,
+        totalFacilities: action.payload.page_size,
+      };
+    case action_types['UPDATE_FACILITY']:
+      return {
+        ...state,
+        postedFacility: action.payload,
+        facilitiesList: state.facilitiesList.map((el) =>
+          el.id === action.payload.data.id
+            ? Object.assign({}, el, action.payload.data)
+            : el,
+        ),
       };
     default:
       return state;

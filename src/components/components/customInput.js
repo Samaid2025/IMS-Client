@@ -5,6 +5,7 @@ class CustomInput extends React.Component {
     const {
       value,
       id,
+      name,
       type,
       placeholder,
       iconClass,
@@ -23,6 +24,7 @@ class CustomInput extends React.Component {
           type={type}
           className="input-text with-border"
           id={id}
+          name={name}
           value={value}
           placeholder={placeholder}
           onChange={this.props.onChange}
