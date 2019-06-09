@@ -2,6 +2,7 @@ import action_types from '../actions/actionTypes';
 const initialState = {
   productTypes: [],
   postedProduct: {},
+  productList:[]
 };
 
 export default function InventoryReducer(state = initialState, action) {
@@ -17,6 +18,12 @@ export default function InventoryReducer(state = initialState, action) {
         ...state,
         postedProduct: action.payload,
       };
+    
+    case action_types.ADD_INVENTORY_ITEMS:
+      return {
+        ...state,
+        productList : action.payload
+      }
 
     default:
       return state;

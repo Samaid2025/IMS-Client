@@ -1,5 +1,6 @@
 const action_types = {
   POST_INVENTORY: 'POST_INVENTORY',
   GET_PRODUCT_TYPES: 'GET_PRODUCT_TYPES',
+  ADD_INVENTORY_ITEMS:'ADD_INVENTORY_ITEMS'
 };
 export default action_types;

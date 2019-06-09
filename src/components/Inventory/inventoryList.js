@@ -3,6 +3,7 @@ import Container from '../components/container';
 import InventoryListByType from './inventoryListsByFilter/inventoryListByType';
 import Loader from 'react-loader-spinner';
 
+
 const data = [
   {
     id: 32,
@@ -30,6 +31,7 @@ class InventoryList extends Component {
   }
 
   componentDidMount = () => {
+    
     let filter = this.props.match.params.filter;
     this.setState({
       type: filter,
@@ -50,11 +52,13 @@ class InventoryList extends Component {
       return (
         <React.Fragment>
           <Container title="Dashboard">
+          
             <InventoryListByType
               data={data}
               requestInventory={this.requestInventory}
               shipInventory={this.shipInventory}
             />
+            
           </Container>
         </React.Fragment>
       );
@@ -68,4 +72,6 @@ class InventoryList extends Component {
   }
 }
 
-export default InventoryList;
+
+
+export default InventoryList

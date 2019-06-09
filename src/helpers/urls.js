@@ -1,1 +1,1 @@
-export const url = 'http://192.168.10.104:8080';
+export const url = 'https://52c6ef2b.ngrok.io';
