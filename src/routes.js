@@ -3,10 +3,20 @@ import FacilityList from '../src/components/Facilities/facilityList';
 import AddInventory from '../src/components/Inventory/addInventory';
 import DashboardContent from './components/dashboard/dashboardContent';
 import InventoryList from './components/Inventory/inventoryList';
+import AddUser from './components/user/addUser';
+import UserList from './components/user/userList';
 const routes = [
   {
     path: '/dashboard',
     component: DashboardContent,
+  },
+  {
+    path: '/addUser',
+    component: AddUser,
+  },
+  {
+    path: '/users',
+    component: UserList,
   },
   {
     path: '/addFacility',

@@ -31,7 +31,7 @@ class TableBody extends React.Component {
               <td data-label="Column 4">{item.facility_admin}</td>
               {/* <td data-label="Column 5">12/05/2018</td> */}
               <td data-label="Column 6">
-                <ul>
+                {/* <ul>
                   {item.linked_facilities.length === 0 ? (
                     <p>No linked facilities</p>
                   ) : (
@@ -39,7 +39,16 @@ class TableBody extends React.Component {
                       <li key={link.id + 'key' + key}>{link.name}</li>
                     ))
                   )}
-                </ul>
+                </ul> */}
+                {item.linked_facilities.length === 0 ? (
+                  'No Linked Facilities'
+                ) : (
+                  <ul>
+                    {item.linked_facilities.map((link, key) => (
+                      <li key={link.id + 'key' + key}>{link.name}</li>
+                    ))}
+                  </ul>
+                )}
               </td>
               <td data-label="Column 7">
                 <button

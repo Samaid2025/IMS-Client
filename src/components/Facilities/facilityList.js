@@ -72,6 +72,8 @@ class FacilityList extends Component {
         editModelOpen: false,
       });
       // this.componentDidMount();
+    } else if (status === false) {
+      toast.error('Facility could not be updated');
     } else {
       this.setState({
         editModelOpen: false,
@@ -97,11 +99,17 @@ class FacilityList extends Component {
       deleteModelOpen: !this.state.deleteModelOpen,
     });
   };
-  handleFacilityDeleteSuccess = () => {
-    this.setState({
-      deleteModelOpen: !this.state.deleteModelOpen,
-    });
-    this.componentDidMount();
+  handleFacilityDeleteSuccess = (status) => {
+    if (status === true) {
+      toast.success('Facility Deleted Successfully');
+      this.setState({
+        deleteModelOpen: !this.state.deleteModelOpen,
+      });
+
+      this.componentDidMount();
+    } else {
+      toast.error('Facility could not be deleted');
+    }
   };
   handlePaginatorClick = (offset) => {
     this.props.getFacilitiesList(1, offset.selected + 1).then(() => {

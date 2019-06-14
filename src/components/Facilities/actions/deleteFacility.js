@@ -10,7 +10,6 @@ export function deleteFacilitySuccess(facilities) {
   };
 }
 const deleteFacility = (id) => {
-  console.log(id);
   return (dispatch) => {
     return axiosInstance
       .delete(url + '/client/apis/DeleteFacility?facility_id=' + id)

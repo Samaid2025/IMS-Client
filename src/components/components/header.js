@@ -1,4 +1,7 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { url } from '../../helpers/urls';
+import getInventoryCount from '../dashboard/actions/getInventoryCount';
 
 class Header extends React.Component {
   constructor() {
@@ -15,10 +18,13 @@ class Header extends React.Component {
     let name = window.localStorage.getItem('first_name');
     if (role !== null) {
       this.setState({
-        role: role === 'ROLE_ADMIN' ? 'Admin' : 'User',
+        role: role === 'ROLE_MANAGER' ? 'Manager' : 'User',
         name: name,
       });
     }
+
+    let user_id = window.localStorage.getItem('user_id');
+    this.props.getInventoryCount(user_id);
   };
 
   logout = () => {
@@ -40,7 +46,14 @@ class Header extends React.Component {
               <div class="left-side">
                 <div id="logo">
                   <a href="dashboard.html">
-                    <img src="/images/logo.png" alt="" />
+                    <img
+                      src={
+                        this.props.inventoryCounts.logo !== undefined
+                          ? url + this.props.inventoryCounts.logo
+                          : ''
+                      }
+                      alt=""
+                    />
                   </a>
                 </div>
               </div>
@@ -99,4 +112,18 @@ class Header extends React.Component {
   }
 }
 
-export default Header;
+const mapStateToProps = (state) => {
+  return {
+    inventoryCounts: state.DashboardReducer.inventoryCounts,
+  };
+};
+const mapDispatchToPRops = (dispatch) => {
+  return {
+    getInventoryCount: (user_id) => dispatch(getInventoryCount(user_id)),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToPRops,
+)(Header);

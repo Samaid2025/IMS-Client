@@ -8,11 +8,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Loader from 'react-loader-spinner';
 import { connect } from 'react-redux';
-import getFacilities from './actions/getFacilities';
+import getFacilities from '../Facilities/actions/getFacilities';
 import getManagers from './actions/getManagers';
 import updateFacility from './actions/updateFacility';
-import { ToastContainer, toast } from 'react-toastify';
-
+import { url } from '../../helpers/urls';
 class EditFacility extends Component {
   constructor(props) {
     super(props);
@@ -22,6 +21,7 @@ class EditFacility extends Component {
         fphone: '',
         password: '',
         address: '',
+        logo: '',
         selectedAdmin: null,
         selectedAdminError: false,
         linkedFacilities: [],
@@ -31,6 +31,7 @@ class EditFacility extends Component {
         passwordError: false,
         addressError: false,
       },
+      allFacilitityOptions: [],
       facilityOptions: [],
       managerOptions: [],
       initailState: {},
@@ -45,14 +46,16 @@ class EditFacility extends Component {
       let opts = [];
       if (this.props.facilities !== undefined) {
         this.props.facilities.forEach((element) => {
-          opts.push({
-            label: element.facility_name,
-            value: element.id,
-          });
+          if (this.props.target.id !== element.id) {
+            opts.push({
+              label: element.facility_name,
+              value: element.id,
+            });
+          }
         });
 
         this.setState({
-          facilityOptions: opts,
+          allFacilitityOptions: opts,
         });
       }
     });
@@ -80,6 +83,10 @@ class EditFacility extends Component {
       facility['fphone'] = this.props.target['facility_phone'];
       facility['password'] = 'jkajkhadj';
       facility['address'] = this.props.target['facility_address'];
+      facility['logo'] =
+        this.props.target['logo'] !== ''
+          ? this.props.target['logo']
+          : 'no_logo';
       this.state.facilityOptions.forEach((element) => {
         if (this.props.target.linked_facilities !== undefined) {
           this.props.target.linked_facilities.forEach((targetFacility) => {
@@ -92,6 +99,7 @@ class EditFacility extends Component {
           });
         }
       });
+
       this.state.managerOptions.forEach((element) => {
         if (this.props.target.facility_admin !== undefined) {
           if (element.label === this.props.target.facility_admin) {
@@ -107,6 +115,9 @@ class EditFacility extends Component {
       this.setState({
         facility: facility,
         initailState: facility,
+        facilityOptions: this.state.allFacilitityOptions.filter((opt) => {
+          return opt.value !== this.props.target.id;
+        }),
       });
     }
   };
@@ -152,8 +163,8 @@ class EditFacility extends Component {
     return isValid;
   };
   handleUpdateFacilityClick = () => {
-    console.log(this.state.facility, this.state.initailState);
     if (this.validateData() === false) {
+      console.log('invalid');
       return;
     } else {
       this.setState({
@@ -164,15 +175,30 @@ class EditFacility extends Component {
         facilityIDs.push(element.value);
       });
       let { facility } = this.state;
-      let payload = {
-        facility_id: this.props.target.id,
-        facility_name: facility.fname,
-        facility_phone: facility.fphone,
-        facility_admin: facility.selectedAdmin.value,
-        user_password: facility.password,
-        linked_facilities: facilityIDs.join(','),
-        facility_address: facility.address,
-      };
+      // let payload = {
+      //   facility_id: this.props.target.id,
+      //   facility_name: facility.fname,
+      //   facility_phone: facility.fphone,
+      //   facility_admin: facility.selectedAdmin.value,
+      //   user_password: facility.password,
+      //   linked_facilities: facilityIDs.join(','),
+      //   facility_address: facility.address,
+      // };
+      let payload = new FormData();
+      console.log('logo is ', document.getElementById('logoFile'));
+      payload.append('facility_id', this.props.target.id);
+      payload.append('facility_name', facility.fname);
+      payload.append('facility_phone', facility.fphone);
+      payload.append('facility_admin', facility.selectedAdmin.value);
+      payload.append('user_password', facility.password);
+      payload.append('linked_facilities', facilityIDs.join(','));
+      payload.append('facility_address', facility.address);
+      payload.append(
+        'logo',
+        document.getElementById('logoFile').files[0] !== undefined
+          ? document.getElementById('logoFile').files[0]
+          : this.state.facility.logo,
+      );
       this.props
         .updateFacility(payload)
         .then(() => {
@@ -187,11 +213,25 @@ class EditFacility extends Component {
           }
         })
         .catch(() => {
-          toast.error('Facility could not be updated');
+          // toast.error('Facility could not be updated');
+          this.props.dismissFacilityModel(false);
           this.setState({
             waiting: false,
           });
         });
+    }
+  };
+  handleImageSelect = () => {
+    let image = document.getElementById('logoFile');
+    document.getElementById('logoPreview').src = image;
+    if (image.files && image.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        document
+          .getElementById('logoPreview')
+          .setAttribute('src', e.target.result);
+      };
+      reader.readAsDataURL(image.files[0]);
     }
   };
   render() {
@@ -204,7 +244,7 @@ class EditFacility extends Component {
         >
           <DialogTitle id="form-dialog-title">
             Edit Facility
-            <ToastContainer />
+            {/* <ToastContainer /> */}
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
@@ -213,6 +253,37 @@ class EditFacility extends Component {
                 '. Please make sure that all the details are correctly filled'}
             </DialogContentText>
             <div className="row">
+              <div class="col-12">
+                <div class="submit-field margin-bottom-0">
+                  <h5>Facility Logo</h5>
+                </div>
+                <div
+                  class="avatar-wrapper"
+                  data-tippy-placement="bottom"
+                  title="Choose Logo"
+                >
+                  {console.log('live logo is ', url + this.state.facility.logo)}
+                  <img
+                    class="profile-pic"
+                    src={url + this.state.facility.logo}
+                    id="logoPreview"
+                    alt=""
+                  />
+                  <div
+                    class="upload-button"
+                    onClick={() => {
+                      document.getElementById('logoFile').click();
+                    }}
+                  />
+                  <input
+                    // class="file-upload"
+                    type="file"
+                    id="logoFile"
+                    onChange={this.handleImageSelect}
+                    accept="image/*"
+                  />
+                </div>
+              </div>
               <div class="col-xl-12">
                 <div class="submit-field">
                   <h5>Facility Name</h5>
@@ -272,7 +343,9 @@ class EditFacility extends Component {
                     styles={customStyles}
                   />
                   {this.state.facility.selectedAdminError ? (
-                    <p style={{ color: 'red' }}>Please select an admin</p>
+                    <p style={{ color: 'red', marginTop: '13px' }}>
+                      Please select an admin
+                    </p>
                   ) : null}
                 </div>
               </div>

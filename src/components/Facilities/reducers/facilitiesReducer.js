@@ -40,6 +40,14 @@ export default function FacilitiesReducer(state = initialState, action) {
             : el,
         ),
       };
+
+    case action_types['DELETE-FACILITY']:
+      return {
+        postedFacility: action.payload,
+        // facilitiesList: state.facilitiesList.filter((item) => {
+        //   return item.id !== action.payload.data.id;
+        // }),
+      };
     default:
       return state;
   }

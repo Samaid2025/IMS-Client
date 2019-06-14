@@ -6854,7 +6854,7 @@ table.basic-table { margin-bottom: 0; }
 .ripple-effect {
 	overflow: hidden;
 	position: relative;
-	z-index: 1;
+	z-index: auto;
 }
 
 .ripple-effect span.ripple-overlay,
@@ -7252,7 +7252,7 @@ input:checked + .switch-button:before {
 	transition: all 250ms ease;
 	background-color: #fff;
 	box-shadow: inset 0 0 0 8px #fff;
-	z-index: 100;
+	z-index: auto;
 	position: absolute;
 	top: 2px;
 	left: 0;
@@ -13504,6 +13504,8 @@ a.dashboard-responsive-nav-trigger { display: none; }
     transition: 0.3s;
 }
 
+
+
 /* IE 11 Fixes */
 @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {  
 	.fun-fact { flex: 1; }
@@ -13537,7 +13539,7 @@ a.dashboard-responsive-nav-trigger { display: none; }
 	margin-top: 20px;
 }
 
-.fun-fact span {
+.fun-fact h3 {
 	font-size: 18px;
 	color: #888;
 	line-height: 22px;
@@ -14250,17 +14252,20 @@ ul.dashboard-box-list > li:hover {
 
 .avatar-wrapper .profile-pic:after {
 	font-family: Feather-Icons;
-	content: "\e9f1";
+	content: "Choose Logo";
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
-	line-height: 120px;
 	position: absolute;
-	font-size: 60px;
+	font-size: 16px;
+    font-weight: 600;
+    color: #333;
 	background: #f0f0f0;
-	color: #aaa;
-	text-align: center;
+	display: flex;
+    align-items: center;
+	justify-content: center;
+	font-family: "Nunito", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .avatar-wrapper .upload-button {
@@ -14294,9 +14299,9 @@ ul.dashboard-box-list > li:hover {
 
 /* Dashbaord Media Queries 
 ------------------------------------- */
-@media (min-width: 1365px) and (max-width: 1600px) {
+/* @media (min-width: 1365px) and (max-width: 1600px) {
 	.fun-fact:last-child { display: none; }
-}
+} */
 
 @media (max-width: 1365px) {
 	.fun-fact {
@@ -15909,4 +15914,23 @@ span.glyphicon-chevron-left::before {
 .myClassName__control {
     height: 10px;
 }
+.react-datepicker__input-container{
+	width: 100%;
+}
+.react-datepicker-wrapper{
+	width: 100%;
+}
 
+.react-datepicker__input-container > input{
+	background-image: url('../images/planner.png'); 
+	background-repeat: no-repeat;
+	background-position: calc(0% + 15px) center;
+	padding-left: 48px;
+	font-family: "Nunito", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+
+.reactCount {
+	font-size: 29px;
+	color: black
+}

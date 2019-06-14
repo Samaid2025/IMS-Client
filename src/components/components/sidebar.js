@@ -70,19 +70,7 @@ class Sidebar extends React.Component {
                         </li>
                       </ul>
                     </li>
-                    {/* <li>
-                      <a href="">
-                        <i class="icon-line-awesome-users" /> User List
-                      </a>
-                      <ul>
-                        <li>
-                          <a href="view-users.html">View Users </a>
-                        </li>
-                        <li>
-                          <a href="add-user.html">Add Users</a>
-                        </li>
-                      </ul>
-                    </li> */}
+
                     <li
                       className={pathname === '/addInventory' ? 'active' : ''}
                     >
@@ -90,6 +78,29 @@ class Sidebar extends React.Component {
                         <i class="icon-feather-file-plus" /> Add Inventory
                       </NavLink>
                     </li>
+
+                    <li
+                      className={
+                        pathname === '/addUser' || pathname === '/users'
+                          ? 'active'
+                          : ''
+                      }
+                    >
+                      <a to={`/users`}>
+                        <i class="icon-line-awesome-users" /> User List
+                      </a>
+                      <ul>
+                        <li>
+                          <NavLink to={`/users`}>User List</NavLink>
+                        </li>
+                        <li>
+                          <NavLink to={`/addUser`} activeClassName="active">
+                            Add User
+                          </NavLink>
+                        </li>
+                      </ul>
+                    </li>
+
                     {/* <li>
                       <a href="report.html">
                         <i class="icon-line-awesome-file-text" /> Reports

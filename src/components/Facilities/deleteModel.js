@@ -25,14 +25,20 @@ class DeleteFacility extends Component {
     this.props
       .deleteFacility(this.props.target.id)
       .then(() => {
-        toast.success('Facility Deleted Successfully');
-        this.props.handleFacilityDeleteSuccess();
-        this.setState({
-          waiting: false,
-        });
+        if (this.props.postedFacility.status === 200) {
+          this.props.handleFacilityDeleteSuccess(true);
+          this.setState({
+            waiting: false,
+          });
+        } else {
+          this.props.handleFacilityDeleteSuccess(false);
+          this.setState({
+            waiting: false,
+          });
+        }
       })
       .catch(() => {
-        toast.success('Facility could not be deleted');
+        this.props.handleFacilityDeleteSuccess(false);
         this.setState({
           waiting: false,
         });
@@ -42,7 +48,7 @@ class DeleteFacility extends Component {
   render() {
     return (
       <React.Fragment>
-        <ToastContainer />
+        {/* <ToastContainer /> */}
         <Dialog
           open={this.props.deleteModelOpen}
           onClose={this.props.toggleDeleteModel}
@@ -75,6 +81,12 @@ class DeleteFacility extends Component {
   }
 }
 
+const mapStateToProps = (state) => {
+  return {
+    postedFacility: state.FacilitiesReducer.postedFacility,
+  };
+};
+
 const mapDispatchToProps = (dispatch) => {
   return {
     deleteFacility: (id) => dispatch(deleteFacility(id)),
@@ -82,6 +94,6 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps,
 )(DeleteFacility);

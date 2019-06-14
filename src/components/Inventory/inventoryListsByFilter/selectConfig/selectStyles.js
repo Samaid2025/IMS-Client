@@ -2,7 +2,7 @@ export const customStyles = {
   container: (provided) => ({
     ...provided,
     display: 'inline-block',
-    width: '100%',
+    width: '35%',
     minHeight: '1px',
     textAlign: 'left',
     border: 'none',

@@ -1,19 +1,10 @@
 import React, { Component } from 'react';
-import Select from 'react-select';
-import { customStyles } from './selectConfig/selectStyles';
 import { connect } from 'react-redux';
 import getProductTypes from '../actions/getProductTypes';
 import getInventoryItems from '../actions/getInventoryItems';
 import Loader from 'react-loader-spinner';
-const data = [
-  {
-    id: 1,
-    asd: 'asda',
-    sada: 'asda',
-    asdasd: 'asda',
-  },
-];
-class InventoryListByType extends Component {
+
+class InventoryByFacility extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -34,34 +25,16 @@ class InventoryListByType extends Component {
           });
         });
 
-        this.props
-          .getInventoryItems(user_id, 'byType', opts[0].label)
-          .then(() => {
-            this.setState({
-              typeOptions: opts,
-              selectedType: opts[0],
-              waiting: false,
-            });
+        this.props.getInventoryItems(user_id, 'byFacility', '').then(() => {
+          this.setState({
+            typeOptions: opts,
+            selectedType: opts[0],
+            waiting: false,
           });
+        });
       }
     });
   };
-
-  handleTypeSelect = (selectedOption) => {
-    let user_id = window.localStorage.getItem('user_id');
-    this.setState({
-      waiting: true,
-      selectedType: selectedOption,
-    });
-    this.props
-      .getInventoryItems(user_id, 'byType', selectedOption.label)
-      .then(() => {
-        this.setState({
-          waiting: false,
-        });
-      });
-  };
-
   getColorClass = (days) => {
     if (days <= 2) {
       return 'td-danger';
@@ -76,15 +49,6 @@ class InventoryListByType extends Component {
       if (this.props.productList.length !== 0) {
         return (
           <React.Fragment>
-            <div className="row" style={{ marginBottom: '10px' }}>
-              <Select
-                value={this.state.selectedType}
-                onChange={this.handleTypeSelect}
-                options={this.state.typeOptions}
-                placeholder="Product Type"
-                styles={customStyles}
-              />
-            </div>
             <table className="basic-table">
               <tr>
                 <th>Product Type</th>
@@ -149,15 +113,6 @@ class InventoryListByType extends Component {
       } else {
         return (
           <React.Fragment>
-            <div className="row" style={{ marginBottom: '10px' }}>
-              <Select
-                value={this.state.selectedType}
-                onChange={this.handleTypeSelect}
-                options={this.state.typeOptions}
-                placeholder="Product Type"
-                styles={customStyles}
-              />
-            </div>
             <table className="basic-table">
               <tr>
                 <th>Product Type</th>
@@ -186,15 +141,6 @@ class InventoryListByType extends Component {
     } else {
       return (
         <React.Fragment>
-          <div className="row" style={{ marginBottom: '10px' }}>
-            <Select
-              value={this.state.selectedType}
-              // onChange={this.handleAdminSelect}
-              options={this.state.typeOptions}
-              placeholder="Product Type"
-              styles={customStyles}
-            />
-          </div>
           <table className="basic-table">
             <tr>
               <th>Product Type</th>
@@ -248,4 +194,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(InventoryListByType);
+)(InventoryByFacility);

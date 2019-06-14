@@ -12,16 +12,19 @@ import getProductTypes from './actions/getProductTypes';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from 'react-loader-spinner';
+import dateFormat from 'dateformat';
 
 class AddInventory extends Component {
   constructor(props) {
     super(props);
     this.state = {
       inventoryItem: {
-        expiration: '',
+        expiration: new Date(),
         expirationError: false,
-        releaseDate: '',
+        expirationErrorMsg: 'Expiration date is required',
+        releaseDate: new Date(),
         releaseDateError: false,
+        releaseDateErrorMsg: 'Release date is required',
         productID: '',
         productIDError: false,
         RFIDNumber: '',
@@ -78,6 +81,7 @@ class AddInventory extends Component {
     });
   };
   handleChange = (e, name) => {
+    // if e is an instance of Event else its treat it as a an instance of Date
     if (e.target !== undefined) {
       const { inventoryItem } = this.state;
       inventoryItem[e.target.name] = e.target.value;
@@ -87,12 +91,18 @@ class AddInventory extends Component {
         errorMessage: '',
       });
     } else {
-      console.log(e, name, this.state.inventoryItem.expiration);
       const { inventoryItem } = this.state;
-      inventoryItem[name] = e
-        .toJSON()
-        .slice(0, 10)
-        .replace(/-/g, '-');
+      if (e < new Date()) {
+        inventoryItem[name + 'ErrorMsg'] =
+          "Choose a date later than today's date";
+        inventoryItem[name + 'Error'] = true;
+        this.setState({
+          inventoryItem: inventoryItem,
+          errorMessage: '',
+        });
+        return;
+      }
+      inventoryItem[name] = e;
       inventoryItem[name + 'Error'] = false;
       this.setState({
         inventoryItem: inventoryItem,
@@ -103,6 +113,7 @@ class AddInventory extends Component {
   validateData = () => {
     let isValid = true;
     const { inventoryItem } = this.state;
+    console.log(inventoryItem['expiration']);
     for (let key in inventoryItem) {
       if (
         inventoryItem[key] === '' ||
@@ -113,6 +124,10 @@ class AddInventory extends Component {
         this.setState({
           inventoryItem: inventoryItem,
         });
+        isValid = false;
+      }
+      // if any of the fields errors are set render inventory data invalid
+      if (inventoryItem[key] === true) {
         isValid = false;
       }
     }
@@ -146,8 +161,14 @@ class AddInventory extends Component {
       let payload = {
         facility: this.state.inventoryItem.selectedFacility.value,
         product_type: this.state.inventoryItem.selectedType.value,
-        product_expiration: this.state.inventoryItem.expiration,
-        product_release: this.state.inventoryItem.releaseDate,
+        product_expiration: this.state.inventoryItem.expiration
+          .toJSON()
+          .slice(0, 10)
+          .replace(/-/g, '-'),
+        product_release: this.state.inventoryItem.releaseDate
+          .toJSON()
+          .slice(0, 10)
+          .replace(/-/g, '-'),
         product_id: this.state.inventoryItem.productID,
         rfid_number: this.state.inventoryItem.RFIDNumber,
         product_vendor: this.state.inventoryItem.vendor,
@@ -162,9 +183,9 @@ class AddInventory extends Component {
             this.setState({
               waiting: false,
               inventoryItem: {
-                expiration: '',
+                expiration: new Date(),
                 expirationError: false,
-                releaseDate: '',
+                releaseDate: new Date(),
                 releaseDateError: false,
                 productID: '',
                 productIDError: false,
@@ -178,6 +199,20 @@ class AddInventory extends Component {
                 selectedTypeError: false,
               },
             });
+          } else if (this.props.postedProduct.status === 401) {
+            this.setState({
+              waiting: false,
+            });
+            toast.error(
+              'Inventory could not be added. The RFID number already exists.',
+            );
+          } else if (this.props.postedProduct.status === 404) {
+            this.setState({
+              waiting: false,
+            });
+            toast.error(
+              'Inventory could not be added. The product ID already exists.',
+            );
           } else {
             this.setState({
               waiting: false,
@@ -227,7 +262,7 @@ class AddInventory extends Component {
                           />
                           {this.state.inventoryItem.selectedFacilityError ===
                           true ? (
-                            <p style={{ color: 'red' }}>
+                            <p style={{ color: 'red', marginTop: '13px' }}>
                               Please select a facility
                             </p>
                           ) : null}
@@ -245,7 +280,7 @@ class AddInventory extends Component {
                             styles={customStyles}
                           />
                           {this.state.inventoryItem.selectedTypeError ? (
-                            <p style={{ color: 'red' }}>
+                            <p style={{ color: 'red', marginTop: '13px' }}>
                               Please select a product type
                             </p>
                           ) : null}
@@ -260,13 +295,15 @@ class AddInventory extends Component {
                               onChange={(date) => {
                                 this.handleChange(date, 'expiration');
                               }}
-                              value={this.state.inventoryItem.expiration}
+                              selected={this.state.inventoryItem.expiration}
                               placeholderText="Exipration Date"
+                              dateFormat="MMMM d, yyyy"
+                              minDate={new Date()}
                               className="input-text with-border icon-material-outline-date-range"
                             />
                             {this.state.inventoryItem.expirationError ? (
                               <p style={{ color: 'red' }}>
-                                Expiration date is required
+                                {this.state.inventoryItem.expirationErrorMsg}
                               </p>
                             ) : null}
                           </div>
@@ -282,13 +319,15 @@ class AddInventory extends Component {
                                 onChange={(date) => {
                                   this.handleChange(date, 'releaseDate');
                                 }}
-                                value={this.state.inventoryItem.releaseDate}
+                                selected={this.state.inventoryItem.releaseDate}
                                 placeholderText="Release Date"
+                                dateFormat="MMMM d, yyyy"
+                                minDate={new Date()}
                                 className="input-text with-border icon-material-outline-date-range"
                               />
                               {this.state.inventoryItem.releaseDateError ? (
                                 <p style={{ color: 'red' }}>
-                                  Release date is required
+                                  {this.state.inventoryItem.releaseDateErrorMsg}
                                 </p>
                               ) : null}
                             </div>

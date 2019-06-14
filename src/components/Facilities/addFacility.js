@@ -129,14 +129,15 @@ class AddFacility extends React.Component {
         facilityIDs.push(element.value);
       });
       let { facility } = this.state;
-      let payload = {
-        facility_name: facility.fname,
-        facility_phone: facility.fphone,
-        facility_admin: facility.selectedAdmin.value,
-        user_password: facility.password,
-        linked_facilities: facilityIDs.join(','),
-        facility_address: facility.address,
-      };
+      let payload = new FormData();
+      console.log('logo is ', document.getElementById('logoFile'));
+      payload.append('facility_name', facility.fname);
+      payload.append('facility_phone', facility.fphone);
+      payload.append('facility_admin', facility.selectedAdmin.value);
+      payload.append('user_password', facility.password);
+      payload.append('linked_facilities', facilityIDs.join(','));
+      payload.append('facility_address', facility.address);
+      payload.append('logo', document.getElementById('logoFile').files[0]);
       this.props
         .postFacility(payload)
         .then(() => {
@@ -160,6 +161,8 @@ class AddFacility extends React.Component {
               },
               waiting: false,
             });
+            document.getElementById('logoPreview').src =
+              'images/user-avatar-placeholder.png';
           } else {
             toast.error('Facility could not be created');
             this.setState({
@@ -173,6 +176,19 @@ class AddFacility extends React.Component {
             waiting: false,
           });
         });
+    }
+  };
+  handleImageSelect = () => {
+    let image = document.getElementById('logoFile');
+    document.getElementById('logoPreview').src = image;
+    if (image.files && image.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        document
+          .getElementById('logoPreview')
+          .setAttribute('src', e.target.result);
+      };
+      reader.readAsDataURL(image.files[0]);
     }
   };
   render() {
@@ -196,9 +212,40 @@ class AddFacility extends React.Component {
 
                   <div class="content with-padding padding-bottom-10">
                     <div class="row">
+                      <div class="col-12">
+                        <div class="submit-field margin-bottom-0">
+                          <h5>Facility Logo</h5>
+                        </div>
+                        <div
+                          class="avatar-wrapper"
+                          data-tippy-placement="bottom"
+                          title="Choose Logo"
+                        >
+                          <img
+                            class="profile-pic"
+                            src="images/user-avatar-placeholder.png"
+                            id="logoPreview"
+                            alt=""
+                          />
+                          <div
+                            class="upload-button"
+                            onClick={() => {
+                              document.getElementById('logoFile').click();
+                            }}
+                          />
+                          <input
+                            // class="file-upload"
+                            type="file"
+                            id="logoFile"
+                            onChange={this.handleImageSelect}
+                            accept="image/*"
+                          />
+                        </div>
+                      </div>
+
                       <div class="col-xl-4">
                         <div class="submit-field">
-                          <h5>Facility Name</h5>
+                          <h5>Facility Name*</h5>
                           <CustomInput
                             type="text"
                             value={this.state.facility.fname}
@@ -215,7 +262,7 @@ class AddFacility extends React.Component {
 
                       <div class="col-xl-4">
                         <div class="submit-field">
-                          <h5>Facility Phone</h5>
+                          <h5>Facility Phone*</h5>
 
                           <CustomInput
                             type="tel"
@@ -233,7 +280,7 @@ class AddFacility extends React.Component {
 
                       <div class="col-xl-4">
                         <div class="submit-field">
-                          <h5>User Password</h5>
+                          <h5>User Password*</h5>
                           <CustomInput
                             type="password"
                             value={this.state.facility.password}
@@ -250,7 +297,7 @@ class AddFacility extends React.Component {
 
                       <div class="col-xl-4">
                         <div class="submit-field">
-                          <h5>Facility Admin</h5>
+                          <h5>Facility Admin*</h5>
                           <Select
                             value={this.state.facility.selectedAdmin}
                             onChange={this.handleAdminSelect}
@@ -258,7 +305,7 @@ class AddFacility extends React.Component {
                             styles={customStyles}
                           />
                           {this.state.facility.selectedAdminError ? (
-                            <p style={{ color: 'red' }}>
+                            <p style={{ color: 'red', marginTop: '13px' }}>
                               Please select an admin
                             </p>
                           ) : null}
@@ -268,26 +315,25 @@ class AddFacility extends React.Component {
                       <div class="col-xl-4">
                         <div class="submit-field">
                           <h5>Linked Facilities</h5>
-                          <div style={{ width: '100px' }}>
-                            <Select
-                              value={this.state.facility.linkedFacilities}
-                              options={this.state.facilityOptions}
-                              styles={customStyles}
-                              onChange={this.handleFacilitySelect}
-                              isMulti={true}
-                            />
-                            {this.state.facility.linkedFacilitiesError ? (
-                              <p style={{ color: 'red' }}>
-                                Please select linked facilities
-                              </p>
-                            ) : null}
-                          </div>
+
+                          <Select
+                            value={this.state.facility.linkedFacilities}
+                            options={this.state.facilityOptions}
+                            styles={customStyles}
+                            onChange={this.handleFacilitySelect}
+                            isMulti={true}
+                          />
+                          {this.state.facility.linkedFacilitiesError ? (
+                            <p style={{ color: 'red' }}>
+                              Please select linked facilities
+                            </p>
+                          ) : null}
                         </div>
                       </div>
 
                       <div class="col-xl-12">
                         <div class="submit-field">
-                          <h5>Facility Address</h5>
+                          <h5>Facility Address*</h5>
                           <textarea
                             value={this.state.facility.address}
                             cols="30"

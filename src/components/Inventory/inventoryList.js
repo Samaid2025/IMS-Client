@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import Container from '../components/container';
 import InventoryListByType from './inventoryListsByFilter/inventoryListByType';
+import InventoryByUser from './inventoryListsByFilter/inventoryListByUser';
+import InventoryByFacility from './inventoryListsByFilter/inventoryListByFacility';
 import Loader from 'react-loader-spinner';
-
 
 const data = [
   {
@@ -31,7 +32,6 @@ class InventoryList extends Component {
   }
 
   componentDidMount = () => {
-    
     let filter = this.props.match.params.filter;
     this.setState({
       type: filter,
@@ -39,26 +39,52 @@ class InventoryList extends Component {
   };
 
   requestInventory = (e) => {
-    console.log(e.target);
-    e.target.innerHTML = 'Requesting...';
+    alert(
+      'This feature is under development and will be availbale in next build',
+    );
   };
 
   shipInventory = (e) => {
-    console.log(e.target.id);
+    // console.log(e.target.id);
+    alert(
+      'This feature is under development and will be availbale in next build',
+    );
   };
 
   render() {
     if (this.state.type === 'byType') {
       return (
         <React.Fragment>
-          <Container title="Dashboard">
-          
+          <Container title="Dashboard: Inventory By Type">
             <InventoryListByType
               data={data}
               requestInventory={this.requestInventory}
               shipInventory={this.shipInventory}
             />
-            
+          </Container>
+        </React.Fragment>
+      );
+    } else if (this.state.type === 'byUser') {
+      return (
+        <React.Fragment>
+          <Container title="Dashboard: Inventory Added By You">
+            <InventoryByUser
+              data={data}
+              requestInventory={this.requestInventory}
+              shipInventory={this.shipInventory}
+            />
+          </Container>
+        </React.Fragment>
+      );
+    } else if (this.state.type === 'byFacility') {
+      return (
+        <React.Fragment>
+          <Container title="Dashboard: Inventory Added By Your Facility">
+            <InventoryByFacility
+              data={data}
+              requestInventory={this.requestInventory}
+              shipInventory={this.shipInventory}
+            />
           </Container>
         </React.Fragment>
       );
@@ -72,6 +98,4 @@ class InventoryList extends Component {
   }
 }
 
-
-
-export default InventoryList
+export default InventoryList;

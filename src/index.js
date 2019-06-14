@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createBrowserHistory } from 'history';
-import { Router, Route, Switch } from 'react-router-dom';
+import { Router, Route, Switch, Redirect } from 'react-router-dom';
 import configureReduxStore from './store';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
@@ -15,13 +15,11 @@ ReactDOM.render(
   <Provider store={configureReduxStore()}>
     <Router history={hist}>
       <Switch>
-        {/* <Route path="/" component={Login} /> */}
+        {/* <Redirect from="/" to="/dashboard" /> */}
         <Route path="/login" component={Login} />
+        <Route path="/dashboard" component={Dashboard} />
+
         <Route path="/" component={Dashboard} />
-
-        {/* <Route path="/" component={Login} /> */}
-
-        {/* <Redirect from="/" to="/login" /> */}
       </Switch>
     </Router>
   </Provider>,
