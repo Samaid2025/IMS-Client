@@ -21,9 +21,6 @@ class FacilityList extends Component {
     };
   }
 
-  componentDidUpdate = () => {
-    console.log('compoenent updating');
-  };
   componentDidMount = () => {
     let token = window.localStorage.getItem('token');
     if (token === null) {
@@ -112,11 +109,20 @@ class FacilityList extends Component {
     }
   };
   handlePaginatorClick = (offset) => {
-    this.props.getFacilitiesList(1, offset.selected + 1).then(() => {
-      this.setState({
-        waiting: false,
+    let user_id = window.localStorage.getItem('user_id');
+    this.props
+      .getFacilitiesList(user_id, offset.selected + 1)
+      .then(() => {
+        console.log('Facilities list ', this.props.facilitiesList);
+        this.setState({
+          waiting: false,
+        });
+      })
+      .catch(() => {
+        this.setState({
+          waiting: false,
+        });
       });
-    });
   };
   render() {
     return (
@@ -152,6 +158,7 @@ class FacilityList extends Component {
                   pageClassName={'ripple-effect'}
                   activeClassName={'current-page'}
                   activeLinkClassName={'current-page'}
+                  disableInitialCallback={true}
                 />
               </div>
             </div>

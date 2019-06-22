@@ -10,7 +10,6 @@ export function getFacilitiesSuccess(facilities) {
   };
 }
 const getFacilitiesList = (user_id, page) => {
-  console.log('page is', page);
   return (dispatch) => {
     return axiosInstance
       .get(

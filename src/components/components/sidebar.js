@@ -85,6 +85,7 @@ class Sidebar extends React.Component {
                           ? 'active'
                           : ''
                       }
+                      hidden={role !== 'ROLE_USER' ? false : true}
                     >
                       <a to={`/users`}>
                         <i class="icon-line-awesome-users" /> User List

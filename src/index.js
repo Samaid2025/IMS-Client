@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 
 import Login from './components/Login/login';
 import Dashboard from './components/dashboard/dashboard';
-
+import NotFoundComponent from './components/pages/404Component';
 const hist = createBrowserHistory();
 
 ReactDOM.render(
@@ -17,8 +17,9 @@ ReactDOM.render(
       <Switch>
         {/* <Redirect from="/" to="/dashboard" /> */}
         <Route path="/login" component={Login} />
+        {/* <Route path="*" exact={true} component={Login} /> */}
         <Route path="/dashboard" component={Dashboard} />
-
+        <Route path="/server-irresponsive" component={NotFoundComponent} />
         <Route path="/" component={Dashboard} />
       </Switch>
     </Router>

@@ -82,6 +82,7 @@ class EditUser extends Component {
   componentDidUpdate = (prevProps, prevState) => {
     if (prevProps !== this.props) {
       console.log(this.props.target);
+      let role = window.localStorage.getItem('role');
       let { user } = this.state;
       let selectedFaclities = [];
       let selectdassignedFacility = {};
@@ -119,6 +120,7 @@ class EditUser extends Component {
       user['selectedViewableFacilities'] = selectedFaclities;
       this.setState({
         user: user,
+        role: role,
       });
     }
   };
@@ -180,7 +182,12 @@ class EditUser extends Component {
     let isValid = true;
     const { user } = this.state;
     for (let key in user) {
-      if (user[key] === '' || user[key] === null || user[key] === []) {
+      if (
+        user[key] === '' ||
+        user[key] === null ||
+        user[key] === [] ||
+        /\S/.test(user[key]) === false
+      ) {
         user[key + 'Error'] = true;
         isValid = false;
       }
@@ -405,7 +412,7 @@ class EditUser extends Component {
                       id="radio-1"
                       name="radio"
                       type="radio"
-                      checked
+                      checked={this.state.user.role === 'ROLE_USER'}
                       onChange={() => {
                         const { user } = this.state;
                         user['role'] = 'ROLE_USER';
@@ -424,6 +431,7 @@ class EditUser extends Component {
                       id="radio-2"
                       name="radio"
                       type="radio"
+                      checked={this.state.user.role === 'ROLE_MANAGER'}
                       onChange={() => {
                         const { user } = this.state;
                         user['role'] = 'ROLE_MANAGER';

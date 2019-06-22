@@ -8,7 +8,6 @@ import Button from '@material-ui/core/Button';
 import Loader from 'react-loader-spinner';
 import { connect } from 'react-redux';
 import deleteFacility from './actions/deleteFacility';
-import { ToastContainer, toast } from 'react-toastify';
 
 class DeleteFacility extends Component {
   constructor(props) {

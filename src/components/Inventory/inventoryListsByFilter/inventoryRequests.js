@@ -1,29 +1,19 @@
 import React, { Component } from 'react';
-import Select from 'react-select';
-import { customStyles } from './selectConfig/selectStyles';
 import { connect } from 'react-redux';
-import getProductTypes from '../actions/getProductTypes';
-import getInventoryItems from '../actions/getInventoryItems';
+import requestInventory from '../actions/getInventoryRequests';
+import invntoryRequestReceived from '../actions/inventoryRequestReceived';
+import updateRequestInventoryCount from '../../dashboard/actions/updateDashboardCounts';
+import { acceptRequestEventReceived } from '../actions/approveRequest';
 import Loader from 'react-loader-spinner';
-import invntoryRequestMade from '../actions/inventoryRequestMade';
-import { url } from '../../../helpers/urls';
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
+import { url } from '../../../helpers/urls';
+import { bellAudio } from '.././audio';
 const EventSource = NativeEventSource || EventSourcePolyfill;
 
-const data = [
-  {
-    id: 1,
-    asd: 'asda',
-    sada: 'asda',
-    asdasd: 'asda',
-  },
-];
-class InventoryListByType extends Component {
+class InventoryRequests extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      typeOptions: [],
-      selectedType: null,
       waiting: true,
       inventoryRequestsStream: null,
     };
@@ -44,55 +34,26 @@ class InventoryListByType extends Component {
     inventoryRequestsStream.onmessage = (event) => {
       console.log(JSON.parse(event.data));
       let eventData = JSON.parse(event.data);
-      if (eventData.command === 'Inventory requested from your facility.') {
-        this.props.invntoryRequestMade(eventData);
+      if (eventData.command === 'Inventory requested.') {
+        this.props.invntoryRequestReceived(JSON.parse(event.data));
+        let sound = new Audio(bellAudio);
+        sound.play();
       }
-      if (
-        eventData.command === 'request accepted' &&
-        eventData.data.product.product_type === this.state.selectedType.label
-      ) {
-        alert('your request for inventory has been approved');
+
+      if (eventData.command === 'Inventory request approved by this facility') {
+        let sound = new Audio(bellAudio);
+        sound.play();
+        this.props.acceptRequestEventReceived(eventData);
       }
     };
     this.setState({
       inventoryRequestsStream: inventoryRequestsStream,
     });
-    this.props.getProductTypes().then(() => {
-      if (this.props.productTypes !== undefined) {
-        let opts = [];
-        this.props.productTypes.forEach((element) => {
-          opts.push({
-            label: element.type,
-            value: element.id,
-          });
-        });
-
-        this.props
-          .getInventoryItems(user_id, 'byType', opts[0].label)
-          .then(() => {
-            this.setState({
-              typeOptions: opts,
-              selectedType: opts[0],
-              waiting: false,
-            });
-          });
-      }
-    });
-  };
-
-  handleTypeSelect = (selectedOption) => {
-    let user_id = window.localStorage.getItem('user_id');
-    this.setState({
-      waiting: true,
-      selectedType: selectedOption,
-    });
-    this.props
-      .getInventoryItems(user_id, 'byType', selectedOption.label)
-      .then(() => {
-        this.setState({
-          waiting: false,
-        });
+    this.props.requestInventory(user_id).then(() => {
+      this.setState({
+        waiting: false,
       });
+    });
   };
 
   getColorClass = (days) => {
@@ -104,21 +65,10 @@ class InventoryListByType extends Component {
     }
     return 'td-success';
   };
-  getRequestButtonLabel(status) {
-    console.log(status);
-    if (status === 'pending') {
-      return 'Request';
-    }
-    if (status === 'requested') {
-      return 'Requested';
-    }
-    if (status === 'rejected') {
-      return 'Request';
-    }
-    if (status === 'approved') {
-      return 'Approved';
-    }
-  }
+
+  declineInventoryRequest = (e) => {
+    console.log(e.target.id);
+  };
 
   componentWillUnmount = () => {
     let { inventoryRequestsStream } = this.state;
@@ -130,62 +80,56 @@ class InventoryListByType extends Component {
 
   render() {
     if (this.state.waiting === false) {
-      if (this.props.productList.length !== 0) {
+      console.log(this.props.inventoryRequests);
+      if (this.props.inventoryRequests.length !== 0) {
         return (
           <React.Fragment>
-            <div className="row" style={{ marginBottom: '10px' }}>
-              <Select
-                value={this.state.selectedType}
-                onChange={this.handleTypeSelect}
-                options={this.state.typeOptions}
-                placeholder="Product Type"
-                styles={customStyles}
-              />
-            </div>
             <table className="basic-table">
               <tr>
                 <th>Product Type</th>
                 <th>Expiration</th>
                 <th>Product ID</th>
-                <th>Facility</th>
+                <th>Requested By</th>
                 <th>Available Date</th>
-                <th>Request</th>
-                <th>Ready</th>
-                <th>Ship</th>
+                <th>Release</th>
+                <th>Decline</th>
               </tr>
-              {this.props.productList.map((item, key) => (
+              {this.props.inventoryRequests.map((item, key) => (
                 <tr key={item.id}>
                   <td
                     className={this.getColorClass(item.time_to_expire)}
-                    data-label="Column 1"
+                    data-label="Product Type"
                   >
-                    {item.product_type}
+                    {item.product.product_type}
                   </td>
-                  <td data-label="Column 2">{item.expiration_date}</td>
-                  <td data-label="Column 3">{item.product_id}</td>
-                  <td data-label="Column 4">{item.facility}</td>
-                  <td data-label="Column 5">{item.release_date}</td>
-                  <td class="td-custom" data-label="Column 6">
+                  <td data-label="Expiration">
+                    {item.product.expiration_date}
+                  </td>
+                  <td data-label="Product ID">{item.product.product_id}</td>
+                  <td data-label="Requested By">
+                    {item.requested_by.assigned_facility.name}
+                  </td>
+                  <td data-label="Available Date">
+                    {item.product.release_date}
+                  </td>
+                  <td class="td-custom" data-label="Release">
                     <button
                       type="button"
                       class="button ripple-effect td-info-btn"
                       id={'request-' + item.id}
-                      onClick={this.props.requestInventory}
-                      disabled={!item.status === 'pending'}
-                      hidden={!item.can_request}
+                      onClick={this.props.releaseInventory}
                     >
-                      {this.getRequestButtonLabel(item.status)}
+                      Accept
                     </button>
                   </td>
-                  <td class="td-info" data-label="Column 7" />
-                  <td class="td-custom" data-label="Column 8">
+                  <td class="td-custom" data-label="Decline">
                     <button
                       type="button"
                       class="button ripple-effect td-info-btn"
-                      id={'ship-' + item.id}
-                      onClick={this.props.shipInventory}
+                      id={'declince-' + item.id}
+                      onClick={this.declineInventoryRequest}
                     >
-                      Ship
+                      Decline
                     </button>
                   </td>
                 </tr>
@@ -208,15 +152,6 @@ class InventoryListByType extends Component {
       } else {
         return (
           <React.Fragment>
-            <div className="row" style={{ marginBottom: '10px' }}>
-              <Select
-                value={this.state.selectedType}
-                onChange={this.handleTypeSelect}
-                options={this.state.typeOptions}
-                placeholder="Product Type"
-                styles={customStyles}
-              />
-            </div>
             <table className="basic-table">
               <tr>
                 <th>Product Type</th>
@@ -232,7 +167,7 @@ class InventoryListByType extends Component {
                 <td />
                 <td />
                 <td />
-                <td>No Inventory items found</td>
+                <td>No Inventory requests </td>
                 <td />
                 <td />
                 <td />
@@ -245,15 +180,6 @@ class InventoryListByType extends Component {
     } else {
       return (
         <React.Fragment>
-          <div className="row" style={{ marginBottom: '10px' }}>
-            <Select
-              value={this.state.selectedType}
-              // onChange={this.handleAdminSelect}
-              options={this.state.typeOptions}
-              placeholder="Product Type"
-              styles={customStyles}
-            />
-          </div>
           <table className="basic-table">
             <tr>
               <th>Product Type</th>
@@ -291,21 +217,24 @@ class InventoryListByType extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    productTypes: state.InventoryReducer.productTypes,
-    productList: state.InventoryReducer.productList,
+    inventoryRequests: state.InventoryReducer.inventoryRequests,
+    inventoryCounts: state.DashboardReducer.inventoryCounts,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    getProductTypes: () => dispatch(getProductTypes()),
-    getInventoryItems: (user_id, filter, productType) =>
-      dispatch(getInventoryItems(user_id, filter, productType)),
-    invntoryRequestMade: (payload) => dispatch(invntoryRequestMade(payload)),
+    requestInventory: (user_id) => dispatch(requestInventory(user_id)),
+    invntoryRequestReceived: (payload) =>
+      dispatch(invntoryRequestReceived(payload)),
+    updateRequestInventoryCount: (payload) =>
+      dispatch(updateRequestInventoryCount(payload)),
+    acceptRequestEventReceived: (payload) =>
+      dispatch(acceptRequestEventReceived(payload)),
   };
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(InventoryListByType);
+)(InventoryRequests);

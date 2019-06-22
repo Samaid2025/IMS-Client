@@ -17,7 +17,7 @@ class AddFacility extends React.Component {
       facility: {
         fname: '',
         fphone: '',
-        password: '',
+        // password: '',
         address: '',
         selectedAdmin: null,
         selectedAdminError: false,
@@ -25,12 +25,14 @@ class AddFacility extends React.Component {
         linkedFacilitiesError: false,
         fphoneError: false,
         fnameError: false,
-        passwordError: false,
+        // passwordError: false,
         addressError: false,
       },
       facilityOptions: [],
       managerOptions: [],
       waiting: false,
+      imageError: false,
+      imageMsg: '',
     };
   }
 
@@ -106,7 +108,12 @@ class AddFacility extends React.Component {
     let isValid = true;
     const { facility } = this.state;
     for (let key in facility) {
-      if (facility[key] === '' || facility[key] === null) {
+      if (
+        facility[key] === '' ||
+        facility[key] === null ||
+        (/\S/.test(facility[key]) === false &&
+          typeof facility[key] === 'string')
+      ) {
         facility[key + 'Error'] = true;
         this.setState({
           facility: facility,
@@ -118,7 +125,7 @@ class AddFacility extends React.Component {
   };
 
   handleCreateFacilityClick = () => {
-    if (this.validateData() === false) {
+    if (this.validateData() === false || this.state.imageError === true) {
       return;
     } else {
       this.setState({
@@ -134,7 +141,7 @@ class AddFacility extends React.Component {
       payload.append('facility_name', facility.fname);
       payload.append('facility_phone', facility.fphone);
       payload.append('facility_admin', facility.selectedAdmin.value);
-      payload.append('user_password', facility.password);
+      payload.append('user_password', 'deprecated');
       payload.append('linked_facilities', facilityIDs.join(','));
       payload.append('facility_address', facility.address);
       payload.append('logo', document.getElementById('logoFile').files[0]);
@@ -144,11 +151,14 @@ class AddFacility extends React.Component {
           console.log('Post response ', this.props.postedFacility);
           if (this.props.postedFacility.status === 200) {
             toast.success('Facility created successfully');
+            let preview = document.getElementById('logoPreview');
+            preview.style.backgroundColor = '';
+            preview.style.position = '';
+            preview.style.zIndex = '';
             this.setState({
               facility: {
                 fname: '',
                 fphone: '',
-                password: '',
                 address: '',
                 selectedAdmin: null,
                 selectedAdminError: false,
@@ -156,7 +166,6 @@ class AddFacility extends React.Component {
                 linkedFacilitiesError: false,
                 fphoneError: false,
                 fnameError: false,
-                passwordError: false,
                 addressError: false,
               },
               waiting: false,
@@ -178,17 +187,60 @@ class AddFacility extends React.Component {
         });
     }
   };
+  hasExtension = (inputID, exts) => {
+    var fileName = document.getElementById(inputID).value;
+    return new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$').test(
+      fileName,
+    );
+  };
+
+  checkFileSize = (inputID) => {
+    var FileSize = document.getElementById(inputID).files[0].size / 1024 / 1024;
+    if (FileSize > 1) {
+      return false;
+    }
+    return true;
+  };
   handleImageSelect = () => {
-    let image = document.getElementById('logoFile');
-    document.getElementById('logoPreview').src = image;
-    if (image.files && image.files[0]) {
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        document
-          .getElementById('logoPreview')
-          .setAttribute('src', e.target.result);
-      };
-      reader.readAsDataURL(image.files[0]);
+    if (
+      !this.hasExtension('logoFile', [
+        '.jpg',
+        '.png',
+        '.bmp',
+        '.JPG',
+        '.PNG',
+        '.BMP',
+      ])
+    ) {
+      this.setState({
+        imageError: true,
+        imageMsg: 'Only image file is allowed',
+      });
+      return;
+    } else if (this.checkFileSize('logoFile') === true) {
+      this.setState({
+        imageError: false,
+      });
+      let image = document.getElementById('logoFile');
+      let preview = document.getElementById('logoPreview');
+      preview.style.backgroundColor = 'white';
+      preview.style.position = 'absolute';
+      preview.style.zIndex = '3';
+      document.getElementById('logoPreview').src = image;
+      if (image.files && image.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          document
+            .getElementById('logoPreview')
+            .setAttribute('src', e.target.result);
+        };
+        reader.readAsDataURL(image.files[0]);
+      }
+    } else {
+      this.setState({
+        imageError: true,
+        imageMsg: 'Image file must be smaller than 1 MB',
+      });
     }
   };
   render() {
@@ -241,6 +293,9 @@ class AddFacility extends React.Component {
                             accept="image/*"
                           />
                         </div>
+                        {this.state.imageError ? (
+                          <p style={{ color: 'red' }}>{this.state.imageMsg}</p>
+                        ) : null}
                       </div>
 
                       <div class="col-xl-4">
@@ -278,7 +333,7 @@ class AddFacility extends React.Component {
                         </div>
                       </div>
 
-                      <div class="col-xl-4">
+                      {/* <div class="col-xl-4">
                         <div class="submit-field">
                           <h5>User Password*</h5>
                           <CustomInput
@@ -293,7 +348,7 @@ class AddFacility extends React.Component {
                             helpText="Password is required"
                           />
                         </div>
-                      </div>
+                      </div> */}
 
                       <div class="col-xl-4">
                         <div class="submit-field">

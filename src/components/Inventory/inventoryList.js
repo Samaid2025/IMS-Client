@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
 import Container from '../components/container';
+// import { robot } from '../../assets/images/broken_robot.jpg';
 import InventoryListByType from './inventoryListsByFilter/inventoryListByType';
 import InventoryByUser from './inventoryListsByFilter/inventoryListByUser';
 import InventoryByFacility from './inventoryListsByFilter/inventoryListByFacility';
-import Loader from 'react-loader-spinner';
+import requestInventory from './actions/requestInventory';
+import acceptRequest from './actions/approveRequest';
+import InventoryRequests from './inventoryListsByFilter/inventoryRequests';
+import RequestedInventory from './inventoryListsByFilter/requestedInventory';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { connect } from 'react-redux';
 
 const data = [
   {
@@ -39,9 +47,42 @@ class InventoryList extends Component {
   };
 
   requestInventory = (e) => {
-    alert(
-      'This feature is under development and will be availbale in next build',
-    );
+    e.persist();
+    e.target.innerHTML = 'Requesting...';
+    let user_id = window.localStorage.getItem('user_id');
+    let id = e.target.id.split('-')[1];
+    let payload = {
+      product_id: id,
+      user_id: user_id,
+    };
+    this.props
+      .requestInventory(payload)
+      .then(() => {
+        if (this.props.inventoryRequestResponse.status === 200) {
+          toast.success(
+            'Inventory has been requested. You can follow its status on Requested Inventory Page',
+          );
+        }
+      })
+      .catch((e) => {});
+  };
+
+  releaseInventory = (e) => {
+    e.persist();
+    e.target.innerHTML = 'Releasing...';
+    let user_id = window.localStorage.getItem('user_id');
+    let request_id = e.target.id.split('-')[1];
+    console.log(request_id);
+    this.props
+      .acceptRequest({
+        request_id: request_id,
+        user_id: user_id,
+      })
+      .then(() => {
+        if (this.props.postedProduct.status === 200) {
+          toast.success('Inventory released successfully');
+        }
+      });
   };
 
   shipInventory = (e) => {
@@ -55,6 +96,7 @@ class InventoryList extends Component {
     if (this.state.type === 'byType') {
       return (
         <React.Fragment>
+          <ToastContainer />
           <Container title="Dashboard: Inventory By Type">
             <InventoryListByType
               data={data}
@@ -88,14 +130,51 @@ class InventoryList extends Component {
           </Container>
         </React.Fragment>
       );
+    } else if (this.state.type === 'inventoryrequests') {
+      return (
+        <React.Fragment>
+          <Container title="Dashboard: Inventory Requests">
+            <InventoryRequests releaseInventory={this.releaseInventory} />
+          </Container>
+        </React.Fragment>
+      );
+    } else if (this.state.type === 'requestedinventory') {
+      return (
+        <React.Fragment>
+          <Container title="Dashboard: Requested Inventory">
+            <RequestedInventory />
+          </Container>
+        </React.Fragment>
+      );
     } else {
       return (
         <React.Fragment>
-          <Container title="Dashboard">TBD</Container>
+          <Container title="Dashboard">
+            <div style={{ textAlign: 'center' }}>
+              <img src="/images/robot.png" style={{ maxWidth: '50%' }} />
+            </div>
+          </Container>
         </React.Fragment>
       );
     }
   }
 }
 
-export default InventoryList;
+const mapStateToProps = (state) => {
+  return {
+    inventoryRequestResponse: state.InventoryReducer.inventoryRequestResponse,
+    postedProduct: state.InventoryReducer.postedProduct,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    requestInventory: (payload) => dispatch(requestInventory(payload)),
+    acceptRequest: (payload) => dispatch(acceptRequest(payload)),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(InventoryList);

@@ -19,7 +19,7 @@ class EditFacility extends Component {
       facility: {
         fname: '',
         fphone: '',
-        password: '',
+        // password: '',
         address: '',
         logo: '',
         selectedAdmin: null,
@@ -28,7 +28,7 @@ class EditFacility extends Component {
         linkedFacilitiesError: false,
         fphoneError: false,
         fnameError: false,
-        passwordError: false,
+        // passwordError: false,
         addressError: false,
       },
       allFacilitityOptions: [],
@@ -37,6 +37,8 @@ class EditFacility extends Component {
       initailState: {},
       waiting: false,
       error: false,
+      imageError: false,
+      imageMsg: '',
     };
   }
   componentDidMount = () => {
@@ -75,7 +77,6 @@ class EditFacility extends Component {
   };
   componentDidUpdate = (prevProps, prevState) => {
     if (prevProps !== this.props) {
-      console.log(this.props.target);
       let { facility } = this.state;
       let selectedFaclities = [];
       let selectedAdmin = {};
@@ -87,9 +88,10 @@ class EditFacility extends Component {
         this.props.target['logo'] !== ''
           ? this.props.target['logo']
           : 'no_logo';
-      this.state.facilityOptions.forEach((element) => {
+      this.state.facilityOptions.map((element) => {
         if (this.props.target.linked_facilities !== undefined) {
-          this.props.target.linked_facilities.forEach((targetFacility) => {
+          this.props.target.linked_facilities.map((targetFacility) => {
+            console.log('adding facilities ....');
             if (element.value === targetFacility.id) {
               selectedFaclities.push({
                 label: element.label,
@@ -110,6 +112,7 @@ class EditFacility extends Component {
           }
         }
       });
+      console.log('liked facilities are ', selectedFaclities);
       facility['linkedFacilities'] = selectedFaclities;
       facility['selectedAdmin'] = selectedAdmin;
       this.setState({
@@ -152,7 +155,12 @@ class EditFacility extends Component {
     let isValid = true;
     const { facility } = this.state;
     for (let key in facility) {
-      if (facility[key] === '' || facility[key] === null) {
+      if (
+        facility[key] === '' ||
+        facility[key] === null ||
+        (/\S/.test(facility[key]) === false &&
+          typeof facility[key] === 'string')
+      ) {
         facility[key + 'Error'] = true;
         this.setState({
           facility: facility,
@@ -221,17 +229,60 @@ class EditFacility extends Component {
         });
     }
   };
+  hasExtension = (inputID, exts) => {
+    var fileName = document.getElementById(inputID).value;
+    return new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$').test(
+      fileName,
+    );
+  };
+  checkFileSize = (inputID) => {
+    var FileSize = document.getElementById(inputID).files[0].size / 1024 / 1024;
+    if (FileSize > 1) {
+      return false;
+    }
+    return true;
+  };
   handleImageSelect = () => {
-    let image = document.getElementById('logoFile');
-    document.getElementById('logoPreview').src = image;
-    if (image.files && image.files[0]) {
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        document
-          .getElementById('logoPreview')
-          .setAttribute('src', e.target.result);
-      };
-      reader.readAsDataURL(image.files[0]);
+    if (
+      this.hasExtension('logoFile', [
+        '.jpg',
+        '.png',
+        '.bmp',
+        '.JPG',
+        '.PNG',
+        '.BMP',
+      ])
+    ) {
+      if (this.checkFileSize('logoFile') === true) {
+        this.setState({
+          imageError: false,
+        });
+        let image = document.getElementById('logoFile');
+        let preview = document.getElementById('logoPreview');
+        preview.style.backgroundColor = 'white';
+        preview.style.position = 'absolute';
+        preview.style.zIndex = '3';
+        document.getElementById('logoPreview').src = image;
+        if (image.files && image.files[0]) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            document
+              .getElementById('logoPreview')
+              .setAttribute('src', e.target.result);
+          };
+          reader.readAsDataURL(image.files[0]);
+        }
+      } else {
+        this.setState({
+          imageError: true,
+          imageMsg: 'Image file must be smaller than 1 MB',
+        });
+      }
+    } else {
+      this.setState({
+        imageError: true,
+        imageMsg: 'Only image file is allowed',
+      });
     }
   };
   render() {
@@ -264,13 +315,13 @@ class EditFacility extends Component {
                 >
                   {console.log('live logo is ', url + this.state.facility.logo)}
                   <img
-                    class="profile-pic"
+                    class="profile-pic profile-edit"
                     src={url + this.state.facility.logo}
                     id="logoPreview"
                     alt=""
                   />
                   <div
-                    class="upload-button"
+                    class="upload-button upload-button-edit"
                     onClick={() => {
                       document.getElementById('logoFile').click();
                     }}
@@ -283,6 +334,9 @@ class EditFacility extends Component {
                     accept="image/*"
                   />
                 </div>
+                {this.state.imageError ? (
+                  <p style={{ color: 'red' }}>{this.state.imageMsg}</p>
+                ) : null}
               </div>
               <div class="col-xl-12">
                 <div class="submit-field">
@@ -317,7 +371,7 @@ class EditFacility extends Component {
                   />
                 </div>
               </div>
-              <div class="col-xl-12">
+              {/* <div class="col-xl-12">
                 <div class="submit-field">
                   <h5>User Password</h5>
                   <CustomInput
@@ -332,7 +386,7 @@ class EditFacility extends Component {
                     helpText="Password is required"
                   />
                 </div>
-              </div>
+              </div> */}
               <div class="col-xl-12">
                 <div class="submit-field">
                   <h5>Facility Admin</h5>

@@ -1,5 +1,6 @@
 const action_types = {
   GET_INVENTORY_COUNTS: 'GET_INVENTORY_COUNTS',
+  UPDATE_INVENTORY_REQUEST_COUNT: 'UPDATE_INVENTORY_REQUEST_COUNT',
 };
 
 export default action_types;

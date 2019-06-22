@@ -76,13 +76,19 @@ class Login extends React.Component {
       .performLogin(this.state.login_credentials)
       .then(() => {
         const { loginData } = this.props;
-        console.log('login resposne', loginData.status);
+        console.log('login resposne', loginData);
+        debugger;
         if (loginData.status === 200) {
           window.localStorage.setItem('user_id', loginData.data.id);
           window.localStorage.setItem('email', loginData.data.email);
           window.localStorage.setItem('token', loginData.data.token);
           window.localStorage.setItem('first_name', loginData.data.first_name);
           window.localStorage.setItem('role', loginData.data.role);
+          window.localStorage.setItem(
+            'facility',
+            loginData.data.assigned_facility.name,
+          );
+
           // this.props.history.push('/dashboard');
           window.location = '/dashboard';
         } else {

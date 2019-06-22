@@ -101,7 +101,12 @@ class AddUser extends React.Component {
     let isValid = true;
     const { user } = this.state;
     for (let key in user) {
-      if (user[key] === '' || user[key] === null || user[key] === []) {
+      if (
+        user[key] === '' ||
+        user[key] === null ||
+        user[key] === [] ||
+        /\S/.test(user[key]) === false
+      ) {
         user[key + 'Error'] = true;
         isValid = false;
       }

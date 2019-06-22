@@ -19,16 +19,29 @@ export default function UserReducer(state = initialState, action) {
       };
 
     case action_types.EDIT_USER_SUCCESS:
-      console.log(action.payload.data);
-      state.userList.map((el) => console.log(el.id === action.payload.data.id));
       return {
         ...state,
         postedUser: action.payload,
-        userList: state.userList.map((el) =>
-          el.id === action.payload.data.id
-            ? Object.assign({}, el, action.payload.data)
-            : el,
-        ),
+        userList:
+          action.payload.data !== undefined
+            ? state.userList.map((el) =>
+                el.id === action.payload.data.id
+                  ? Object.assign({}, el, action.payload.data)
+                  : el,
+              )
+            : state.userList,
+      };
+
+    case action_types.DELETE_USER:
+      return {
+        ...state,
+        postedUser: action.payload,
+        userList:
+          action.payload.data !== undefined
+            ? state.userList.filter((el) => {
+                return el.id !== action.payload.data.id;
+              })
+            : state.userList,
       };
 
     default:

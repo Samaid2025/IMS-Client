@@ -3,6 +3,7 @@ export const customStyles = {
     ...provided,
     display: 'inline-block',
     width: '100%',
+    height: '100%',
     minHeight: '1px',
     textAlign: 'left',
     border: 'none',
@@ -11,7 +12,7 @@ export const customStyles = {
     ...provided,
     borderRadius: '5',
     minHeight: '10px',
-    height: '48px',
+    height: '100%',
     width: '100%',
   }),
   input: (provided) => ({
@@ -29,7 +30,6 @@ export const customStyles = {
   indicatorSeparator: (provided) => ({
     ...provided,
     minHeight: '1px',
-    height: '24px',
   }),
   clearIndicator: (provided) => ({
     ...provided,
@@ -38,7 +38,7 @@ export const customStyles = {
   valueContainer: (provided) => ({
     ...provided,
     minHeight: '1px',
-    height: '40px',
+    height: '100%',
     paddingTop: '0',
     paddingBottom: '0',
   }),

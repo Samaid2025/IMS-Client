@@ -56,7 +56,7 @@ class InventoryByUser extends Component {
                 <th>Product ID</th>
                 <th>Facility</th>
                 <th>Available Date</th>
-                <th>Request</th>
+                {/* <th>Request</th> */}
                 <th>Ready</th>
                 <th>Ship</th>
               </tr>
@@ -72,7 +72,7 @@ class InventoryByUser extends Component {
                   <td data-label="Column 3">{item.product_id}</td>
                   <td data-label="Column 4">{item.facility}</td>
                   <td data-label="Column 5">{item.release_date}</td>
-                  <td class="td-custom" data-label="Column 6">
+                  {/* <td class="td-custom" data-label="Column 6">
                     <button
                       type="button"
                       class="button ripple-effect td-info-btn"
@@ -81,7 +81,7 @@ class InventoryByUser extends Component {
                     >
                       Request
                     </button>
-                  </td>
+                  </td> */}
                   <td class="td-info" data-label="Column 7" />
                   <td class="td-custom" data-label="Column 8">
                     <button

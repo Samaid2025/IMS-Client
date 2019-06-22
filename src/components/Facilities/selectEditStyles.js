@@ -2,18 +2,18 @@ export const customStyles = {
   container: (provided) => ({
     ...provided,
     display: 'inline-block',
-    width: '280px',
+    width: '100%',
+    height: '100%',
     minHeight: '1px',
     textAlign: 'left',
     border: 'none',
   }),
   control: (provided) => ({
     ...provided,
-    // border: '1px solid grey',
     borderRadius: '5',
     minHeight: '10px',
-    height: '48px',
-    width: '190%',
+    height: '100%',
+    width: '100%',
   }),
   input: (provided) => ({
     ...provided,
@@ -30,7 +30,6 @@ export const customStyles = {
   indicatorSeparator: (provided) => ({
     ...provided,
     minHeight: '1px',
-    height: '24px',
   }),
   clearIndicator: (provided) => ({
     ...provided,
@@ -39,7 +38,7 @@ export const customStyles = {
   valueContainer: (provided) => ({
     ...provided,
     minHeight: '1px',
-    height: '40px',
+    height: '100%',
     paddingTop: '0',
     paddingBottom: '0',
   }),

@@ -34,11 +34,14 @@ export default function FacilitiesReducer(state = initialState, action) {
       return {
         ...state,
         postedFacility: action.payload,
-        facilitiesList: state.facilitiesList.map((el) =>
-          el.id === action.payload.data.id
-            ? Object.assign({}, el, action.payload.data)
-            : el,
-        ),
+        facilitiesList:
+          action.payload.data !== undefined
+            ? state.facilitiesList.map((el) =>
+                el.id === action.payload.data.id
+                  ? Object.assign({}, el, action.payload.data)
+                  : el,
+              )
+            : state.facilitiesList,
       };
 
     case action_types['DELETE-FACILITY']:

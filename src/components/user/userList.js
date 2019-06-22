@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import getAllUsers from './actions/getAllUsers';
 import Loader from 'react-loader-spinner';
 import EditUser from './editUser';
+import DeleteUser from './deleteUser';
+import deleteUser from './actions/deleteUser';
 import { ToastContainer, toast } from 'react-toastify';
 class UserList extends React.Component {
   constructor(props) {
@@ -11,21 +13,40 @@ class UserList extends React.Component {
     this.state = {
       waiting: true,
       editModelOpen: false,
+      deleteModelOpen: false,
       EditTarget: {},
+      deleteTarget: {},
+      deleteWaiting: false,
     };
   }
 
   componentDidMount = () => {
+    let token = window.localStorage.getItem('token');
+    console.log('token is ', token);
+    if (token === null) {
+      this.props.history.push('/login');
+    }
+    let role = window.localStorage.getItem('role');
+    if (role === 'ROLE_USER') {
+      this.props.history.push('/dashboard');
+    }
     let user_id = window.localStorage.getItem('user_id');
-    this.props.getAllUsers(user_id).then(() => {
-      this.setState({
-        waiting: false,
+    this.props
+      .getAllUsers(user_id)
+      .then(() => {
+        this.setState({
+          waiting: false,
+        });
+      })
+      .catch((e) => {
+        this.setState({
+          waiting: false,
+        });
+        throw e;
       });
-    });
   };
 
   handleEditClick = (e) => {
-    console.log('called', e.target);
     let id = e.target.id.split('-');
     this.props.userList.forEach((element) => {
       if (element.id === Number(id[1])) {
@@ -69,6 +90,54 @@ class UserList extends React.Component {
       });
       toast.error('User could not be updated.');
     }
+  };
+
+  handleDeleteClick = (e) => {
+    let id = e.target.id.split('-');
+    this.props.userList.forEach((element) => {
+      if (element.id === Number(id[1])) {
+        this.setState({
+          deleteModelOpen: true,
+          deleteTarget: element,
+        });
+      }
+    });
+  };
+
+  dismissDeleteModel = () => {
+    this.setState({
+      deleteModelOpen: false,
+    });
+  };
+
+  deleteUser = () => {
+    this.setState({
+      deleteWaiting: true,
+    });
+
+    this.props
+      .deleteUser(this.state.deleteTarget.id)
+      .then(() => {
+        if (this.props.postedUser.status === 200) {
+          this.setState({
+            deleteWaiting: false,
+            deleteModelOpen: false,
+          });
+          toast.success('User Deleted Sucsessfully.');
+        } else {
+          this.setState({
+            deleteWaiting: false,
+          });
+          toast.error('User could not be delete.');
+        }
+      })
+      .catch((e) => {
+        this.setState({
+          deleteWaiting: false,
+        });
+        toast.error('User could not be delete.');
+        throw e;
+      });
   };
 
   render() {
@@ -191,7 +260,11 @@ class UserList extends React.Component {
                       data-tippy-placement="top"
                       style={{ padding: '5px' }}
                     >
-                      <i class="icon-feather-trash-2" />
+                      <i
+                        class="icon-feather-trash-2"
+                        id={'del-' + user.id}
+                        onClick={this.handleDeleteClick}
+                      />
                     </button>
                   </td>
                 </tr>
@@ -202,6 +275,13 @@ class UserList extends React.Component {
               editModelOpen={this.state.editModelOpen}
               dismissEditModel={this.dismissEditModel}
               handleFacilityEditResult={this.handleFacilityEditResult}
+            />
+            <DeleteUser
+              deleteModelOpen={this.state.deleteModelOpen}
+              target={this.state.deleteTarget}
+              dismissDeleteModel={this.dismissDeleteModel}
+              waiting={this.state.deleteWaiting}
+              deleteUser={this.deleteUser}
             />
           </Container>
         </React.Fragment>
@@ -220,6 +300,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     getAllUsers: (user_id) => dispatch(getAllUsers(user_id)),
+    deleteUser: (user_id) => dispatch(deleteUser(user_id)),
   };
 };
 

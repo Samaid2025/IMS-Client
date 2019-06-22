@@ -118,7 +118,8 @@ class AddInventory extends Component {
       if (
         inventoryItem[key] === '' ||
         inventoryItem[key] === null ||
-        document.getElementsByName(key).value === ''
+        document.getElementsByName(key).value === '' ||
+        /\S/.test(inventoryItem[key]) === false
       ) {
         inventoryItem[key + 'Error'] = true;
         this.setState({
