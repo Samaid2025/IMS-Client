@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import getProductTypes from '../actions/getProductTypes';
-import getInventoryItems from '../actions/getInventoryItems';
 import Loader from 'react-loader-spinner';
 import { url } from '../../../helpers/urls';
-import invntoryRequestMade from '../actions/inventoryRequestMade';
-import { inventoryRequestApproved } from '../actions/approveRequest';
-import { inventoryRequestDeclined } from '../actions/declineRequest';
+import getShippedInventory from '../actions/getShippedInventory';
 import { shipInventoryEventReceived } from '../actions/shipInventory';
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 const EventSource = NativeEventSource || EventSourcePolyfill;
-class InventoryByFacility extends Component {
+
+class ShippedInventory extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -20,6 +17,7 @@ class InventoryByFacility extends Component {
       inventoryRequestsStream: null,
     };
   }
+
   componentDidMount = () => {
     let user_id = window.localStorage.getItem('user_id');
     let facility = window.localStorage.getItem('facility');
@@ -34,57 +32,28 @@ class InventoryByFacility extends Component {
     };
     inventoryRequestsStream.onmessage = (event) => {
       console.log(JSON.parse(event.data));
-      let facility = window.localStorage.getItem('facility');
-
       let eventData = JSON.parse(event.data);
-      if (eventData.command === 'Inventory requested from your facility.') {
-        this.props.invntoryRequestMade(eventData);
-      }
 
-      if (
-        eventData.command === 'request accepted' &&
-        eventData.data.product.product_type === this.state.selectedType.label &&
-        eventData.data.approved_for === facility
-      ) {
-        this.props.inventoryRequestApproved(eventData);
-      }
-      if (
-        eventData.command === 'inventory request from your facility declined' &&
-        eventData.data.product.product_type === this.state.selectedType.label &&
-        eventData.data.approved_for === facility
-      ) {
-        console.log('concatinating');
-        this.props.inventoryRequestDeclined(eventData);
-      }
-      if (
-        eventData.command === 'inventory_shipped' &&
-        eventData.data.product.product_type === this.state.selectedType.label
-      ) {
+      if (eventData.command === 'inventory_shipped') {
         this.props.shipInventoryEventReceived(eventData);
       }
     };
     this.setState({
       inventoryRequestsStream: inventoryRequestsStream,
     });
-    this.props.getProductTypes().then(() => {
-      if (this.props.productTypes !== undefined) {
-        let opts = [];
-        this.props.productTypes.forEach((element) => {
-          opts.push({
-            label: element.type,
-            value: element.id,
-          });
+    this.props
+      .getShippedInventory(user_id)
+      .then(() => {
+        this.setState({
+          waiting: false,
         });
-
-        this.props.getInventoryItems(user_id, 'byFacility', '').then(() => {
-          this.setState({
-            typeOptions: opts,
-            selectedType: opts[0],
-            waiting: false,
-          });
+      })
+      .catch((e) => {
+        this.setState({
+          waiting: false,
         });
-      }
-    });
+        throw e;
+      });
   };
   getColorClass = (days) => {
     if (days <= 2) {
@@ -97,7 +66,7 @@ class InventoryByFacility extends Component {
   };
   render() {
     if (this.state.waiting === false) {
-      if (this.props.productList.length !== 0) {
+      if (this.props.shippedInventory.length !== 0) {
         return (
           <React.Fragment>
             <table className="basic-table">
@@ -106,12 +75,8 @@ class InventoryByFacility extends Component {
                 <th>Expiration</th>
                 <th>Product ID</th>
                 <th>Facility</th>
-                <th>Available Date</th>
-                <th>Request</th>
-                <th>Ready</th>
-                <th>Ship</th>
               </tr>
-              {this.props.productList.map((item, key) => (
+              {this.props.shippedInventory.map((item, key) => (
                 <tr key={item.id}>
                   <td
                     className={this.getColorClass(item.time_to_expire)}
@@ -122,33 +87,6 @@ class InventoryByFacility extends Component {
                   <td data-label="Column 2">{item.expiration_date}</td>
                   <td data-label="Column 3">{item.product_id}</td>
                   <td data-label="Column 4">{item.facility}</td>
-                  <td data-label="Column 5">{item.release_date}</td>
-                  <td class="td-custom" data-label="Column 6">
-                    <button
-                      type="button"
-                      class="button ripple-effect td-info-btn"
-                      id={'request-' + item.id}
-                      onClick={this.props.requestInventory}
-                      hidden={!item.can_request}
-                    >
-                      Request
-                    </button>
-                  </td>
-                  <td
-                    class={item.can_ship === true ? 'td-info' : 'td-danger'}
-                    data-label="Column 7"
-                  />
-                  <td class="td-custom" data-label="Column 8">
-                    <button
-                      type="button"
-                      class="button ripple-effect td-info-btn"
-                      id={'ship-' + item.id}
-                      hidden={!item.can_ship}
-                      onClick={this.props.shipInventory}
-                    >
-                      Ship
-                    </button>
-                  </td>
                 </tr>
               ))}
             </table>
@@ -234,21 +172,13 @@ class InventoryByFacility extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    productTypes: state.InventoryReducer.productTypes,
-    productList: state.InventoryReducer.productList,
+    shippedInventory: state.InventoryReducer.shippedInventory,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    getProductTypes: () => dispatch(getProductTypes()),
-    getInventoryItems: (user_id, filter, productType) =>
-      dispatch(getInventoryItems(user_id, filter, productType)),
-    invntoryRequestMade: (payload) => dispatch(invntoryRequestMade(payload)),
-    inventoryRequestApproved: (payload) =>
-      dispatch(inventoryRequestApproved(payload)),
-    inventoryRequestDeclined: (payload) =>
-      dispatch(inventoryRequestDeclined(payload)),
+    getShippedInventory: (payload) => dispatch(getShippedInventory(payload)),
     shipInventoryEventReceived: (payload) =>
       dispatch(shipInventoryEventReceived(payload)),
   };
@@ -257,4 +187,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(InventoryByFacility);
+)(ShippedInventory);

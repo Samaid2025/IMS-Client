@@ -6,6 +6,8 @@ import InventoryList from './components/Inventory/inventoryList';
 import AddUser from './components/user/addUser';
 import UserList from './components/user/userList';
 import Reports from './components/reports/report';
+import AutomaticReports from './components/reports/automaticReports';
+
 const routes = [
   {
     path: '/dashboard',
@@ -38,6 +40,10 @@ const routes = [
   {
     path: '/reports',
     component: Reports,
+  },
+  {
+    path: '/automatic-reports',
+    component: AutomaticReports,
   },
 ];
 

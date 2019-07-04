@@ -15941,3 +15941,19 @@ span.glyphicon-chevron-left::before {
 	font-size: 29px;
 	color: black
 }
+
+.report-table {
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+
+/* .basic-table tbody{
+	display:block;
+	overflow:auto;
+	height:200px;
+	width:100%;
+  }
+  .basic-table thead tr{
+	display:block;
+  } */

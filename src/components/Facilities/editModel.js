@@ -64,12 +64,14 @@ class EditFacility extends Component {
 
     this.props.getManagers().then(() => {
       let opts = [];
-      this.props.manager.forEach((element) => {
-        opts.push({
-          label: element.username,
-          value: element.id,
+      if (this.props.manager !== undefined) {
+        this.props.manager.forEach((element) => {
+          opts.push({
+            label: element.username,
+            value: element.id,
+          });
         });
-      });
+      }
       this.setState({
         managerOptions: opts,
       });
@@ -183,15 +185,7 @@ class EditFacility extends Component {
         facilityIDs.push(element.value);
       });
       let { facility } = this.state;
-      // let payload = {
-      //   facility_id: this.props.target.id,
-      //   facility_name: facility.fname,
-      //   facility_phone: facility.fphone,
-      //   facility_admin: facility.selectedAdmin.value,
-      //   user_password: facility.password,
-      //   linked_facilities: facilityIDs.join(','),
-      //   facility_address: facility.address,
-      // };
+
       let payload = new FormData();
       console.log('logo is ', document.getElementById('logoFile'));
       payload.append('facility_id', this.props.target.id);

@@ -1,24 +1,24 @@
 import React, { Component } from 'react';
-import Select from 'react-select';
-import { customStyles } from './selectConfig/selectStyles';
 import { connect } from 'react-redux';
+import Loader from 'react-loader-spinner';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import getProductTypes from '../actions/getProductTypes';
 import getInventoryItems from '../actions/getInventoryItems';
-import Loader from 'react-loader-spinner';
 import invntoryRequestMade from '../actions/inventoryRequestMade';
+import getInventoryByExpiration from '../actions/getInventoryByExpiration';
 import { inventoryRequestApproved } from '../actions/approveRequest';
 import { inventoryRequestDeclined } from '../actions/declineRequest';
 import { url } from '../../../helpers/urls';
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 import { shipInventoryEventReceived } from '../actions/shipInventory';
 const EventSource = NativeEventSource || EventSourcePolyfill;
-
-class InventoryListByType extends Component {
+class InventoryByExpiration extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      typeOptions: [],
-      selectedType: null,
+      dateSelected: new Date(),
       waiting: true,
       inventoryRequestsStream: null,
     };
@@ -68,44 +68,49 @@ class InventoryListByType extends Component {
     this.setState({
       inventoryRequestsStream: inventoryRequestsStream,
     });
-    this.props.getProductTypes().then(() => {
-      if (this.props.productTypes !== undefined) {
-        let opts = [];
-        this.props.productTypes.forEach((element) => {
-          opts.push({
-            label: element.type,
-            value: element.id,
-          });
-        });
-
-        this.props
-          .getInventoryItems(user_id, 'byType', opts[0].label)
-          .then(() => {
-            this.setState({
-              typeOptions: opts,
-              selectedType: opts[0],
-              waiting: false,
-            });
-          });
-      }
-    });
-  };
-
-  handleTypeSelect = (selectedOption) => {
-    let user_id = window.localStorage.getItem('user_id');
-    this.setState({
-      waiting: true,
-      selectedType: selectedOption,
-    });
+    let date = new Date();
+    let payload = {
+      user_id: user_id,
+      date:
+        date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
+    };
     this.props
-      .getInventoryItems(user_id, 'byType', selectedOption.label)
+      .getInventoryByExpiration(payload)
       .then(() => {
+        this.setState({
+          waiting: false,
+        });
+      })
+      .catch((e) => {
         this.setState({
           waiting: false,
         });
       });
   };
-
+  handleDateSelect = (date) => {
+    this.setState({
+      dateSelected: date,
+      waiting: true,
+    });
+    let user_id = window.localStorage.getItem('user_id');
+    let payload = {
+      user_id: user_id,
+      date:
+        date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
+    };
+    this.props
+      .getInventoryByExpiration(payload)
+      .then(() => {
+        this.setState({
+          waiting: false,
+        });
+      })
+      .catch((e) => {
+        this.setState({
+          waiting: false,
+        });
+      });
+  };
   getColorClass = (days) => {
     if (days <= 2) {
       return 'td-danger';
@@ -130,28 +135,23 @@ class InventoryListByType extends Component {
       return 'Approved';
     }
   }
-
-  componentWillUnmount = () => {
-    let { inventoryRequestsStream } = this.state;
-    inventoryRequestsStream.close();
-    this.setState({
-      inventoryRequestsStream: inventoryRequestsStream,
-    });
-  };
-
   render() {
     if (this.state.waiting === false) {
       if (this.props.productList.length !== 0) {
         return (
           <React.Fragment>
             <div className="row" style={{ marginBottom: '10px' }}>
-              <Select
-                value={this.state.selectedType}
-                onChange={this.handleTypeSelect}
-                options={this.state.typeOptions}
-                placeholder="Product Type"
-                styles={customStyles}
-              />
+              <div className="col-md-4">
+                <DatePicker
+                  onChange={(date) => {
+                    this.handleDateSelect(date);
+                  }}
+                  selected={this.state.dateSelected}
+                  placeholderText="Exipration Date"
+                  dateFormat="MMMM d, yyyy"
+                  className="input-text with-border icon-material-outline-date-range"
+                />
+              </div>
             </div>
             <table className="basic-table">
               <tr>
@@ -160,7 +160,7 @@ class InventoryListByType extends Component {
                 <th>Product ID</th>
                 <th>Facility</th>
                 <th>Available Date</th>
-                <th>Request</th>
+
                 <th>Ready</th>
                 <th>Ship</th>
               </tr>
@@ -176,19 +176,7 @@ class InventoryListByType extends Component {
                   <td data-label="Column 3">{item.product_id}</td>
                   <td data-label="Column 4">{item.facility}</td>
                   <td data-label="Column 5">{item.release_date}</td>
-                  <td class="td-custom" data-label="Column 6">
-                    <button
-                      type="button"
-                      class="button ripple-effect td-info-btn"
-                      id={'request-' + item.id}
-                      onClick={this.props.requestInventory}
-                      disabled={!item.status === 'pending'}
-                      hidden={!item.can_request}
-                    >
-                      {/* {this.getRequestButtonLabel(item.status)} */}
-                      Request
-                    </button>
-                  </td>
+
                   <td
                     class={item.can_ship === true ? 'td-info' : 'td-danger'}
                     data-label="Column 7"
@@ -225,13 +213,17 @@ class InventoryListByType extends Component {
         return (
           <React.Fragment>
             <div className="row" style={{ marginBottom: '10px' }}>
-              <Select
-                value={this.state.selectedType}
-                onChange={this.handleTypeSelect}
-                options={this.state.typeOptions}
-                placeholder="Product Type"
-                styles={customStyles}
-              />
+              <div className="col-md-4">
+                <DatePicker
+                  onChange={(date) => {
+                    this.handleDateSelect(date);
+                  }}
+                  selected={this.state.dateSelected}
+                  placeholderText="Exipration Date"
+                  dateFormat="MMMM d, yyyy"
+                  className="input-text with-border icon-material-outline-date-range"
+                />
+              </div>
             </div>
             <table className="basic-table">
               <tr>
@@ -240,7 +232,6 @@ class InventoryListByType extends Component {
                 <th>Product ID</th>
                 <th>Facility</th>
                 <th>Available Date</th>
-                <th>Request</th>
                 <th>Ready</th>
                 <th>Ship</th>
               </tr>
@@ -249,7 +240,6 @@ class InventoryListByType extends Component {
                 <td />
                 <td />
                 <td>No Inventory items found</td>
-                <td />
                 <td />
                 <td />
                 <td />
@@ -262,13 +252,17 @@ class InventoryListByType extends Component {
       return (
         <React.Fragment>
           <div className="row" style={{ marginBottom: '10px' }}>
-            <Select
-              value={this.state.selectedType}
-              // onChange={this.handleAdminSelect}
-              options={this.state.typeOptions}
-              placeholder="Product Type"
-              styles={customStyles}
-            />
+            <div className="col-md-4">
+              <DatePicker
+                onChange={(date) => {
+                  this.handleDateSelect(date);
+                }}
+                selected={this.state.dateSelected}
+                placeholderText="Exipration Date"
+                dateFormat="MMMM d, yyyy"
+                className="input-text with-border icon-material-outline-date-range"
+              />
+            </div>
           </div>
           <table className="basic-table">
             <tr>
@@ -277,7 +271,6 @@ class InventoryListByType extends Component {
               <th>Product ID</th>
               <th>Facility</th>
               <th>Available Date</th>
-              <th>Request</th>
               <th>Ready</th>
               <th>Ship</th>
             </tr>
@@ -293,7 +286,6 @@ class InventoryListByType extends Component {
                   width={40}
                 />
               </td>
-              <td />
               <td />
               <td />
               <td />
@@ -324,10 +316,12 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(inventoryRequestDeclined(payload)),
     shipInventoryEventReceived: (payload) =>
       dispatch(shipInventoryEventReceived(payload)),
+    getInventoryByExpiration: (payload) =>
+      dispatch(getInventoryByExpiration(payload)),
   };
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(InventoryListByType);
+)(InventoryByExpiration);

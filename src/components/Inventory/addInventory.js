@@ -82,32 +82,34 @@ class AddInventory extends Component {
   };
   handleChange = (e, name) => {
     // if e is an instance of Event else its treat it as a an instance of Date
-    if (e.target !== undefined) {
-      const { inventoryItem } = this.state;
-      inventoryItem[e.target.name] = e.target.value;
-      inventoryItem[e.target.name + 'Error'] = false;
-      this.setState({
-        inventoryItem: inventoryItem,
-        errorMessage: '',
-      });
-    } else {
-      const { inventoryItem } = this.state;
-      if (e < new Date()) {
-        inventoryItem[name + 'ErrorMsg'] =
-          "Choose a date later than today's date";
-        inventoryItem[name + 'Error'] = true;
+    if (e !== null) {
+      if (e.target !== undefined) {
+        const { inventoryItem } = this.state;
+        inventoryItem[e.target.name] = e.target.value;
+        inventoryItem[e.target.name + 'Error'] = false;
         this.setState({
           inventoryItem: inventoryItem,
           errorMessage: '',
         });
-        return;
+      } else {
+        const { inventoryItem } = this.state;
+        if (e < new Date()) {
+          inventoryItem[name + 'ErrorMsg'] =
+            "Choose a date later than today's date";
+          inventoryItem[name + 'Error'] = true;
+          this.setState({
+            inventoryItem: inventoryItem,
+            errorMessage: '',
+          });
+          return;
+        }
+        inventoryItem[name] = e;
+        inventoryItem[name + 'Error'] = false;
+        this.setState({
+          inventoryItem: inventoryItem,
+          errorMessage: '',
+        });
       }
-      inventoryItem[name] = e;
-      inventoryItem[name + 'Error'] = false;
-      this.setState({
-        inventoryItem: inventoryItem,
-        errorMessage: '',
-      });
     }
   };
   validateData = () => {

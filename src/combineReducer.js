@@ -4,10 +4,12 @@ import FacilitiesReducer from './components/Facilities/reducers/facilitiesReduce
 import InventoryReducer from './components/Inventory/inventoryReducer/inventoryReducer';
 import DashboardReducer from './components/dashboard/dashboardReducer/dashboardReducer';
 import UserReducer from './components/user/reducer/userReducer';
+import reportReducer from './components/reports/reducers/reportReducer';
 export default combineReducers({
   LoginReducer,
   FacilitiesReducer,
   InventoryReducer,
   DashboardReducer,
   UserReducer,
+  reportReducer,
 });

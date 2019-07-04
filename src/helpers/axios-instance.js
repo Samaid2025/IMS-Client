@@ -32,7 +32,7 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
       }
     } else {
-      window.location = '/server-irresponsive';
+      // window.location = '/server-irresponsive';
       return Promise.reject(error);
     }
   },

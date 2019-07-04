@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Loader from 'react-loader-spinner';
+import { url } from '../../../helpers/urls';
 import getRequestedInventory from '../actions/getRequestedInventory';
+import { inventoryRequestDeclined } from '../actions/declineRequest';
+
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 const EventSource = NativeEventSource || EventSourcePolyfill;
 
@@ -15,6 +18,33 @@ class RequestedInventory extends Component {
   }
   componentDidMount = () => {
     let user_id = window.localStorage.getItem('user_id');
+    let facility = window.localStorage.getItem('facility');
+    let { inventoryRequestsStream } = this.state;
+    inventoryRequestsStream = new EventSource(
+      url + '/events/' + facility + '/' + user_id,
+    );
+    inventoryRequestsStream.onopen = () => {
+      this.setState({
+        message: 'connected',
+      });
+    };
+    inventoryRequestsStream.onmessage = (event) => {
+      console.log(JSON.parse(event.data));
+      let facility = window.localStorage.getItem('facility');
+      let eventData = JSON.parse(event.data);
+      if (eventData.command === 'Inventory requested from your facility.') {
+        this.componentDidMount();
+      }
+      if (
+        eventData.command === 'inventory request from your facility declined' &&
+        eventData.data.approved_for === facility
+      ) {
+        this.props.inventoryRequestDeclined(eventData);
+      }
+    };
+    this.setState({
+      inventoryRequestsStream: inventoryRequestsStream,
+    });
     this.props.getRequestedInventory(user_id).then(() => {
       console.log('loaded inventory ', this.props.requestedInventory);
       this.setState({
@@ -51,7 +81,7 @@ class RequestedInventory extends Component {
                       type="button"
                       class="button ripple-effect td-danger-btn"
                       id={'request-' + item.id}
-                      onClick={this.props.requestInventory}
+                      onClick={this.props.declineInventoryRequest}
                       disabled={!item.status === 'pending'}
                     >
                       Cancel Request
@@ -126,6 +156,8 @@ const mapDispatchToProps = (dispatch) => {
   return {
     getRequestedInventory: (user_id) =>
       dispatch(getRequestedInventory(user_id)),
+    inventoryRequestDeclined: (payload) =>
+      dispatch(inventoryRequestDeclined(payload)),
   };
 };
 

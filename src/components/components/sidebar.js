@@ -102,6 +102,39 @@ class Sidebar extends React.Component {
                       </ul>
                     </li>
 
+                    {/* <li className={pathname === '/reports' ? 'active' : ''}>
+                      <NavLink to={`/reports`}>
+                        <i class="icon-line-awesome-file-text" /> Reports
+                      </NavLink>
+                    </li> */}
+
+                    <li
+                      className={
+                        pathname === '/reports' ||
+                        pathname === '/automatic-reports'
+                          ? 'active'
+                          : ''
+                      }
+                      hidden={role !== 'ROLE_USER' ? false : true}
+                    >
+                      <a to={`/reports`}>
+                        <i class="icon-line-awesome-file-text" /> Reports
+                      </a>
+                      <ul>
+                        <li>
+                          <NavLink to={`/reports`}>Reports</NavLink>
+                        </li>
+                        <li>
+                          <NavLink
+                            to={`/automatic-reports`}
+                            activeClassName="active"
+                          >
+                            Manage Reports
+                          </NavLink>
+                        </li>
+                      </ul>
+                    </li>
+
                     {/* <li>
                       <a href="report.html">
                         <i class="icon-line-awesome-file-text" /> Reports

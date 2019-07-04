@@ -32,9 +32,7 @@ class DashboardContent extends Component {
     inventoryRequestsStream.onmessage = (event) => {
       console.log(JSON.parse(event.data));
       if (JSON.parse(event.data).counts !== undefined) {
-        this.props.updateRequestInventoryCount(
-          JSON.parse(event.data).counts.inventoryRequestCount,
-        );
+        this.props.updateRequestInventoryCount(JSON.parse(event.data).counts);
         this.forceUpdate();
         let sound = new Audio(bellAudio);
         sound.play();
@@ -66,6 +64,15 @@ class DashboardContent extends Component {
                   : 0
               }
               to={`/inventory/byType`}
+            />
+            <DashbaordPills
+              title="Inventory By Expiration"
+              count={
+                this.props.inventoryCounts.expiringInventoryCount !== undefined
+                  ? this.props.inventoryCounts.expiringInventoryCount
+                  : 0
+              }
+              to={`/inventory/inventoryByExpiration`}
             />
             <DashbaordPills
               title="Inventory By You"
@@ -103,6 +110,33 @@ class DashboardContent extends Component {
                   : 0
               }
               to={`/inventory/requestedinventory`}
+            />
+            <DashbaordPills
+              title="Shipped Inventory"
+              count={
+                this.props.inventoryCounts.shippedInv !== undefined
+                  ? this.props.inventoryCounts.shippedInv
+                  : 0
+              }
+              to={`/inventory/shippedInventory`}
+            />
+            <DashbaordPills
+              title="Checked In Inventory"
+              count={
+                this.props.inventoryCounts.checkedIn !== undefined
+                  ? this.props.inventoryCounts.checkedIn
+                  : 0
+              }
+              to={`/inventory/CheckedinInventory`}
+            />
+            <DashbaordPills
+              title="Checked Out Inventory"
+              count={
+                this.props.inventoryCounts.checkedOut !== undefined
+                  ? this.props.inventoryCounts.checkedOut
+                  : 0
+              }
+              to={`/inventory/CheckedoutInventory`}
             />
           </div>
         </Container>

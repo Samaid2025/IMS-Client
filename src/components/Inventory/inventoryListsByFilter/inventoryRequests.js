@@ -4,6 +4,7 @@ import requestInventory from '../actions/getInventoryRequests';
 import invntoryRequestReceived from '../actions/inventoryRequestReceived';
 import updateRequestInventoryCount from '../../dashboard/actions/updateDashboardCounts';
 import { acceptRequestEventReceived } from '../actions/approveRequest';
+import { declineInvnetoryEventReceived } from '../actions/declineRequest';
 import Loader from 'react-loader-spinner';
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 import { url } from '../../../helpers/urls';
@@ -45,6 +46,11 @@ class InventoryRequests extends Component {
         sound.play();
         this.props.acceptRequestEventReceived(eventData);
       }
+      if (eventData.command === 'Request declined.') {
+        let sound = new Audio(bellAudio);
+        sound.play();
+        this.props.declineInvnetoryEventReceived(eventData);
+      }
     };
     this.setState({
       inventoryRequestsStream: inventoryRequestsStream,
@@ -66,9 +72,9 @@ class InventoryRequests extends Component {
     return 'td-success';
   };
 
-  declineInventoryRequest = (e) => {
-    console.log(e.target.id);
-  };
+  // declineInventoryRequest = (e) => {
+  //   console.log(e.target.id);
+  // };
 
   componentWillUnmount = () => {
     let { inventoryRequestsStream } = this.state;
@@ -127,7 +133,7 @@ class InventoryRequests extends Component {
                       type="button"
                       class="button ripple-effect td-info-btn"
                       id={'declince-' + item.id}
-                      onClick={this.declineInventoryRequest}
+                      onClick={this.props.declineInventoryRequest}
                     >
                       Decline
                     </button>
@@ -231,6 +237,8 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(updateRequestInventoryCount(payload)),
     acceptRequestEventReceived: (payload) =>
       dispatch(acceptRequestEventReceived(payload)),
+    declineInvnetoryEventReceived: (payload) =>
+      dispatch(declineInvnetoryEventReceived(payload)),
   };
 };
 

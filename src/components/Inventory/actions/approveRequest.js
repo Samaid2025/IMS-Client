@@ -11,6 +11,15 @@ export function acceptRequestEventReceived(eventData) {
   };
 }
 
+export function inventoryRequestApproved(eventData) {
+  return (dispatch) => {
+    dispatch({
+      payload: eventData,
+      type: action_types.INVENTORY_REQUEST_APPROVED,
+    });
+  };
+}
+
 export function acceptRequestSuccess(response) {
   return (dispatch) => {
     dispatch({

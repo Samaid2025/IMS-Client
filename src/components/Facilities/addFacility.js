@@ -66,12 +66,14 @@ class AddFacility extends React.Component {
 
     this.props.getManagers().then(() => {
       let opts = [];
-      this.props.manager.forEach((element) => {
-        opts.push({
-          label: element.username,
-          value: element.id,
+      if (this.props.manager !== undefined) {
+        this.props.manager.forEach((element) => {
+          opts.push({
+            label: element.username,
+            value: element.id,
+          });
         });
-      });
+      }
       this.setState({
         managerOptions: opts,
       });
@@ -110,7 +112,7 @@ class AddFacility extends React.Component {
     for (let key in facility) {
       if (
         facility[key] === '' ||
-        facility[key] === null ||
+        // facility[key] === null ||
         (/\S/.test(facility[key]) === false &&
           typeof facility[key] === 'string')
       ) {
@@ -140,7 +142,10 @@ class AddFacility extends React.Component {
       console.log('logo is ', document.getElementById('logoFile'));
       payload.append('facility_name', facility.fname);
       payload.append('facility_phone', facility.fphone);
-      payload.append('facility_admin', facility.selectedAdmin.value);
+      payload.append(
+        'facility_admin',
+        facility.selectedAdmin !== null ? facility.selectedAdmin.value : 0,
+      );
       payload.append('user_password', 'deprecated');
       payload.append('linked_facilities', facilityIDs.join(','));
       payload.append('facility_address', facility.address);

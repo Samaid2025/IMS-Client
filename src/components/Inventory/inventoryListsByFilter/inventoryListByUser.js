@@ -3,6 +3,10 @@ import { connect } from 'react-redux';
 import getProductTypes from '../actions/getProductTypes';
 import getInventoryItems from '../actions/getInventoryItems';
 import Loader from 'react-loader-spinner';
+import { url } from '../../../helpers/urls';
+import { shipInventoryEventReceived } from '../actions/shipInventory';
+import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
+const EventSource = NativeEventSource || EventSourcePolyfill;
 
 class InventoryByUser extends Component {
   constructor(props) {
@@ -11,10 +15,33 @@ class InventoryByUser extends Component {
       typeOptions: [],
       selectedType: null,
       waiting: true,
+      inventoryRequestsStream: null,
     };
   }
   componentDidMount = () => {
     let user_id = window.localStorage.getItem('user_id');
+    let facility = window.localStorage.getItem('facility');
+    let { inventoryRequestsStream } = this.state;
+    inventoryRequestsStream = new EventSource(
+      url + '/events/' + facility + '/' + user_id,
+    );
+    inventoryRequestsStream.onopen = () => {
+      this.setState({
+        message: 'connected',
+      });
+    };
+    inventoryRequestsStream.onmessage = (event) => {
+      console.log(JSON.parse(event.data));
+      let facility = window.localStorage.getItem('facility');
+      let eventData = JSON.parse(event.data);
+
+      if (eventData.command === 'inventory_shipped') {
+        this.props.shipInventoryEventReceived(eventData);
+      }
+    };
+    this.setState({
+      inventoryRequestsStream: inventoryRequestsStream,
+    });
     this.props.getProductTypes().then(() => {
       if (this.props.productTypes !== undefined) {
         let opts = [];
@@ -82,12 +109,16 @@ class InventoryByUser extends Component {
                       Request
                     </button>
                   </td> */}
-                  <td class="td-info" data-label="Column 7" />
+                  <td
+                    class={item.can_ship === true ? 'td-info' : 'td-danger'}
+                    data-label="Column 7"
+                  />
                   <td class="td-custom" data-label="Column 8">
                     <button
                       type="button"
                       class="button ripple-effect td-info-btn"
                       id={'ship-' + item.id}
+                      hidden={!item.can_ship}
                       onClick={this.props.shipInventory}
                     >
                       Ship
@@ -188,6 +219,8 @@ const mapDispatchToProps = (dispatch) => {
     getProductTypes: () => dispatch(getProductTypes()),
     getInventoryItems: (user_id, filter, productType) =>
       dispatch(getInventoryItems(user_id, filter, productType)),
+    shipInventoryEventReceived: (payload) =>
+      dispatch(shipInventoryEventReceived(payload)),
   };
 };
 
